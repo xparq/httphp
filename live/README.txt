@@ -44,7 +44,7 @@ SETUP
 - Copy the "live" dir to some place of your choice (and rename it as you 
   wish -- BTW, the reason I don't already call it "httphp" is because 
   it's within a project dir called "httphp" on my local machine, and I'd 
-  prefer dying to creating a subdir under another dir called the same...
+  prefer dying to creating a subdir under another dir called the same.
   Never trust people who do that! ;-o ).
   Put that dir on the PATH so you can execute `httphp` anywhere. Or just
   create shortcuts / launchers to it wherever you need.
