@@ -8,7 +8,8 @@ ABOUT
   HTTPHP instance will stop the old one first. (No need to bother 
   killing the running server manually. You see? "Ideal for local 
   development", I told you. Whenever you just want to serve up some
-  project dir instantly, there is no simpler way than this.
+  project dir instantly, and than switch to another, there is no
+  simpler way than this.)
 - Runs on Node.js (v0.10.25 included), so it's easy to tweak. (And 
   it's also slow. Did I mention to use it for internal development 
   only? Yeah, NODE.js is fast, but only for I/O-bound high loads, 
