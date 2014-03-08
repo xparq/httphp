@@ -1,6 +1,6 @@
-ABOUT
+HTTPHP - Instant low-tech PHP server for local dirs
 
-Low-tech local HTTP development server with PHP-CGI support
+ABOUT
 
 - Recommended for multi-project local (only) development purposes!
 - Defaults to serving the current dir on http://localhost/

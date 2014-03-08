@@ -58,7 +58,7 @@ var dirmap = {}
 
 
 function show_help() {
-	console.log("HTTPHP v"+VERSION+" - Instant PHP server for local dirs")
+	console.log("HTTPHP v"+VERSION+" - Instant low-tech PHP server for local dirs")
 	console.log("")       
 	console.log("httphp           : Serve the current dir as http://localhost/")
 	console.log("        -h       : Show this help (and exit).")
