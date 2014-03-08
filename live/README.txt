@@ -34,8 +34,9 @@ SETUP
 
 USAGE:
 
-Just 
-	httphp
+	httphp -h -- for help
+	httphp    -- for serving the current dir as http://localhost/
+	
 
 
 Enjoy!
