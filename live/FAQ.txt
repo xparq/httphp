@@ -1,0 +1,40 @@
+---------------------------------
+* Why not just using PHP5's new built-in server?
+
+I'd love to, but stopping and restarting it every time I want to serve 
+some other dir is a nuisance.
+
+
+---------------------------------
+* Why not node-php? 
+
+Quoting https://github.com/davidcoallier/node-php:
+
+"Installing
+
+Well this is a bit tricky, there are a few things you will need in order to get this thang running:
+
+You need a running PHP-FPM server.
+You need to have Node.js installed with NPM
+Install node-fastcgi-parser ( https://github.com/billywhizz/node-fastcgi-parser )
+Then you git clone git://github.com/davidcoallier/node-php.git, 
+then you git submodule init, then you git submodule update, and npm install
+...
+There is no POST handling. I'm not that far in the FCGI specs yet — need to find how to send data (post data)
+There is no base url. If you include ../../../../poop it will try to load it and most likely will fail.
+If you try to load a file that the PHP-FPM worker does not have access to, it will fail silently and you will swear. 
+A lot. By silently I mean, it will give you a 404 even though the files do exist."
+
+
+---------------------------------
+* Why not node-php? 
+
+It just didn't work as-is. But that's exactly the module I tweaked for my needs.
+So, thanks for the kick-start to the author of 'php-cgi' ("sihorton")!
+
+
+---------------------------------
+* Related stuff?
+
+https://github.com/TooTallNate/node-cgi
+https://github.com/lrsjng/node-cgi (docs: http://larsjung.de/node-cgi/)

@@ -1,0 +1,47 @@
+TODO:
+=====
+
++ -a for "attach as alias" (regexp)
++ File-type handlers (move PHP to php-handler, add js etc.).
++ Support for regular "ctrl:" request handling. 
++ Better STOP request handling: add some security token?
+  (Since this is meant to be a local-only server, no need to complicate things that far!)
+
+
+DONE:
+=====
+[REMEMBER TO CHANGE THE VERSION IN THE SOURCE, TOO!]
+
+2014-03-08 - v1
++ Changed the startup scripts and the docs.
++ Restructured for better instant deployment (The "live" dir is now "officially"
+  the deliverable package.)
++ Added -h for help.
++ Tagged as version 1.
+
+2014-02-05
++ Minor changes to some error logs.
+
+2014-02-05 - v0.3
++ Rudimentary "reconfiguration" (basically port-reclaiming) protocol added, via 
+  a "?ctrl:stop!" query string.
+  If a new server (NEW) is launched but it detects another instance (OLD) already 
+  running on the same port, it then tries to tell the OLD one to shut down so 
+  that the NEW one can take over.
++ Small improvements here and there.
++ SCRIPT_FILENAME (regression) fixed.
+
+2014-02-04
++ FIX SCRIPT_NAME, PATH_INFO, PHP_SELF. (PATH_INFO currently unsupported;
+  always empty.)
++ Command line support for webdir and port.
++ Support for implicit index file list.
++ Set 'REQUEST_URI' in the CGI env.
++ Set 'SERVER_PORT' and 'SERVER_NAME' (to what's in the request!) in the CGI env.
+
+2014-02-03
+* Tested on Linux with PHP-CGI 5.5.0RC1
+* Added start shell script for Linux.
+
+2014-02-01
+* Works nicely on Windows, with PHP-CGI 5.4.14.
