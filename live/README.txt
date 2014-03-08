@@ -37,8 +37,8 @@ SETUP
 	php5ts.dll
 	php.ini
 
-- NODE.exe is included for Windows, but you'll need NODE.js installed on 
-  Linux.
+- NODE.exe is included for Windows (XP). On other systems you'll need 
+  Node.js installed.
 
 - Copy the "live" dir to some place of your choice (and rename it as you 
   wish -- BTW, the only reason I don't already call it "httphp" is because 
