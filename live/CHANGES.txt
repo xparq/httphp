@@ -12,6 +12,9 @@ DONE:
 =====
 [REMEMBER TO CHANGE THE VERSION IN THE SOURCE, TOO!]
 
+2014-03-10
++ Removed "testweb" from under the "live" dir (and added to .gitignore).
+
 2014-03-08 - v1
 + Changed the startup scripts and the docs.
 + Restructured for better instant deployment (The "live" dir is now "officially"
