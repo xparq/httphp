@@ -264,8 +264,14 @@ var server = Http.createServer(function(request, response) {
 				    phpCGI.env['SERVER_PORT'] = SERVER_PORT;
 				    phpCGI.env['SERVER_NAME'] = request.headers.host;
 
-				    phpCGI.process(file_to_serve, request, response, function(resultcode) {
-					log(request, reqpath, file_to_serve_fullpath, resultcode, "(via PHP-CGI)")
+				    phpCGI.process(file_to_serve, request, response, function(statuscode, errmsg) {
+					log(request, reqpath, file_to_serve_fullpath, statuscode, "(via PHP-CGI)")
+					switch (statuscode) {
+					case 500:
+						response.write("HTTP error 500 ("+errmsg+")")
+						break
+					}
+					response.end()
 				    });
 
 				break;

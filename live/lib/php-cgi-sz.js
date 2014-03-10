@@ -130,15 +130,28 @@ var Me = {
 			  stdio: 'pipe'
 		});
 
-		//!! How to make sure this below gets done *before* an unlucky spawn fails?!
-		//!! Is spawn synchronous (- no callback!)? Or does it always succeed? (I doubt.)
+		var error_msg  = "CGI error"
+
+		// spawn() would pass errors here:
 		cgi.on('error', function(e) {
-			console.log("OOPS: cannot launch CGI executable!")
-			//!! Now how to tear down the broken pipe and abort this mess?
+			switch (e.code) {
+			case 'ENOENT':
+				error_msg = "Couldn't find CGI executable '"+Me.bin+"'."
+				break
+			default:
+				error_msg = "'" + e.code + "' while trying to launch CGI executable '"+Me.bin+"'."
+				break
+			}
+			console.log("CGI: "+ error_msg)
+			res.writeHead(500, "Internal server error: " + error_msg)
+
+			if (typeof(end_callback) == "function")
+				end_callback(500, error_msg) // this must close the response stream!
+			else
+				res.end()
+
 		})
 
-
-		//!! How to make sure we only come here if the spawn succeeded?
 
 		req.pipe(cgi.stdin);
 		if (params['sterr']) {
@@ -186,9 +199,11 @@ var Me = {
 			}
 		});
 		cgi.stdout.on('end',function() { 
-			res.end();
 			if (typeof(end_callback) == "function")
-				end_callback(200); //!! send a real code...
+				//!! not always 200 here?
+				end_callback(200, "OK") // this must close the response stream!
+			else
+				res.end()
 		});
 	}
 }

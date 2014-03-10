@@ -1,6 +1,7 @@
 TODO:
 =====
 
++ "OOPS: cannot launch CGI executable!" leaves the request hanging.
 + -a for "attach as alias" (regexp)
 + File-type handlers (move PHP to php-handler, add js etc.).
 + Support for regular "ctrl:" request handling. 
@@ -13,6 +14,8 @@ DONE:
 [REMEMBER TO CHANGE THE VERSION IN THE SOURCE, TOO!]
 
 2014-03-10
++ CGI "cannot launch CGI executable!" leaves the request hanging.
++ Added 500 error "body" messages, too.
 + Removed "testweb" from under the "live" dir (and added to .gitignore).
 
 2014-03-08 - v1
