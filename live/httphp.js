@@ -9,7 +9,7 @@ TODO:
 + PHP internal ?=PHPxxx URIs fail with surplus slashes (like //index.php)
 */
 
-var VERSION = "1.01"
+var VERSION = "1.02"
 
 // Server config:
 var SERVER_PORT = 80
@@ -47,6 +47,12 @@ function show_help() {
 }
 
 
+function log(msg) {
+	var LOGPREFIX = ""	//"HTTPHP: "
+	var TIMESTAMP = "["+Date.now()+"] "
+	console.log(LOGPREFIX + TIMESTAMP + msg)
+}
+
 // Options to override the defaults:
 // -p port
 // -d webdir
@@ -70,17 +76,17 @@ process.argv.forEach(function (arg, i, array) {
 	switch (param_of) {
 	case '-p':
 		SERVER_PORT = arg
-		notice("SERVER_PORT changed to '" + SERVER_PORT + "'")
+		log_notice("SERVER_PORT changed to '" + SERVER_PORT + "'")
 		param_of = null
 		break
 	case '-d':
 		SERVER_DOC_ROOT = arg
-		notice("SERVER_DOC_ROOT changed to '" + SERVER_DOC_ROOT + "'")
+		log_notice("SERVER_DOC_ROOT changed to '" + SERVER_DOC_ROOT + "'")
 		param_of = null
 		break
 	case '-i':
 		SERVER_INDEX_FILES = arg
-		notice("SERVER_INDEX_FILES changed to '" + SERVER_INDEX_FILES + "'")
+		log_notice("SERVER_INDEX_FILES changed to '" + SERVER_INDEX_FILES + "'")
 		param_of = null
 		break
 	}			
@@ -103,26 +109,30 @@ var Fs = require("fs")
 //var Util = require("util")
 
 
-function log(request, urlpath, localpath, result, note) {
-	console.log("HTTP: "+ request.method +" "+ request.url +" [mapped to: "+ localpath +"] - "+ result + " "+ note)
+function log_http(request, urlpath, localpath, result, note) {
+	log(request.method +" "+ request.url +" [mapped to: "+ localpath +"] - "+ result + " "+ note)
 }
 
-function err(msg) {
-	console.log("HTTP: error: "+ msg)
+function log_err(msg) {
+	log("ERROR: "+ msg)
 }
-function warn(msg) {
-	console.log("HTTP: warning: "+ msg)
+function log_warn(msg) {
+	log("WARNING: "+ msg)
 }
-function notice(msg) {
-	console.log("HTTP: notice: "+ msg)
+function log_notice(msg) {
+	log("notice: "+ msg)
 }
+function log_debug(msg) {
+	log(">> DEBUG <<: "+ msg)
+}
+
 
 function respond_404(request, response, reqpath, file_to_serve_fullpath) {
 	if (typeof(file_to_serve_fullpath) == 'undefined') file_to_serve_fullpath = '?'
 	response.writeHeader(404, {"Content-Type": "text/plain"})
 	response.write("404 Not Found\n")
 	response.end()
-	log(request, reqpath, file_to_serve_fullpath, 404, "Not Found")
+	log_http(request, reqpath, file_to_serve_fullpath, 404, "Not Found")
 }
 
 
@@ -132,9 +142,9 @@ function respond_404(request, response, reqpath, file_to_serve_fullpath) {
 var keys = dirmap.keys
 for (d in dirmap) {
 	var dir = dirmap[d]
-	console.log("Checking server dir '" + dir + "'")
+	log_notice("Checking dir '" + dir + "'")
 	if (!Fs.existsSync(dir)) {
-		err("Cannot serve non-existing dir '"+ dir +"', exiting...")
+		log_err("Cannot serve non-existing dir '"+ dir +"', exiting...")
 		return
 	}
 }
@@ -163,7 +173,7 @@ var server = Http.createServer(function(request, response) {
 
 	//!!EXPERIMENTAL:
 	if (/*requri.protocol == 'ctrl:' ||*/ request.url.indexOf('ctrl:stop!') > -1) {
-		notice("STOP! (Requested by ["+request.url+"] (!!source tracking not implemented!!)");
+		log_notice("STOP! (Requested by ["+request.url+"] (!!source tracking not implemented!!)");
 
 		response.writeHeader(200)
 		response.write("Cheers!", "binary")
@@ -195,7 +205,7 @@ var server = Http.createServer(function(request, response) {
 			response.writeHeader(500, {"Content-Type": "text/plain"})
 			response.write(err + "\n")
 			response.end()
-			log(request, reqpath, file_to_serve_fullpath, 500, "File stat() failed")
+			log_http(request, reqpath, file_to_serve_fullpath, 500, "File stat() failed")
 		}
 		return;
 	}
@@ -207,14 +217,14 @@ var server = Http.createServer(function(request, response) {
 		SERVER_INDEX_FILES.split(",").some(function(index) {
 			file_to_serve          = Path.join(reqpath, index.trim())
 			file_to_serve_fullpath = Path.join(SERVER_DOC_ROOT, file_to_serve)
-			notice("trying index: '" + file_to_serve_fullpath +"'")
+			log_notice("trying index: '" + file_to_serve_fullpath +"'")
 			if (Fs.existsSync(file_to_serve_fullpath)) {
 				INDIRECT_INDEX = file_to_serve_fullpath
 				return true
 			}
 		})
 		if (!INDIRECT_INDEX) {
-			err("no directory index found")
+			log_err("no directory index found")
 			respond_404(request, response, reqpath, file_to_serve_fullpath)
 			return
 		}
@@ -243,7 +253,7 @@ var server = Http.createServer(function(request, response) {
 				    phpCGI.env['SERVER_NAME'] = request.headers.host;
 
 				    phpCGI.process(file_to_serve, request, response, function(statuscode, errmsg) {
-					log(request, reqpath, file_to_serve_fullpath, statuscode, "(via PHP-CGI)")
+					log_http(request, reqpath, file_to_serve_fullpath, statuscode, "(via PHP-CGI)")
 					switch (statuscode) {
 					case 500:
 						response.write("HTTP error 500 ("+errmsg+")")
@@ -262,7 +272,7 @@ var server = Http.createServer(function(request, response) {
 						response.writeHeader(200)
 						response.write(file, "binary")
 						response.end()
-						log(request, reqpath, file_to_serve_fullpath, 200, "OK")
+						log_http(request, reqpath, file_to_serve_fullpath, 200, "OK")
 
 					} else if (err.code == 'ENOENT') {
 
@@ -273,13 +283,13 @@ var server = Http.createServer(function(request, response) {
 						response.writeHeader(500, {"Content-Type": "text/plain"})
 						response.write(err + "\n")
 						response.end()
-						log(request, reqpath, file_to_serve_fullpath, 500, "File Error")
+						log_http(request, reqpath, file_to_serve_fullpath, 500, "File Error")
 					}
 				})
 		}
 
         } else {
-//console.log("hello" + request.url)
+//log_debug("hello" + request.url)
 		respond_404(request, response, reqpath, file_to_serve_fullpath)
 	}
 
@@ -292,15 +302,15 @@ var kill_request_sent = false
 
 server.on('error',function(e){
 	if (e.code == 'EADDRINUSE') {
-		err("Port "+ SERVER_PORT +" is already used. Trying to take over...");
+		log_err("Port "+ SERVER_PORT +" is already used. Trying to take over...");
 
 		//http://nodejs.org/api/http.html#http_http_get_options_callback
 		Http.get("http://"+SERVER_HOST+":"+SERVER_PORT+"/?ctrl:stop!", function(res) {
-			notice("Response to the STOP req.: " + res.statusCode);
+			log_notice("Response to the STOP req.: " + res.statusCode);
 		}).on('error', function(e) {
 			// Connection reset is expected if we kill the server ;)
 			if (e.code != 'ECONNRESET') {
-				err("'"+ e.message +"' while trying to reclaim server port.");
+				log_err("'"+ e.message +"' while trying to reclaim server port.");
 			}
 		});
 
@@ -310,7 +320,7 @@ server.on('error',function(e){
 			// Wait for it to probably finish:
 			setTimeout(function () {
 				if (!server_listening_ok) {
-					err("Couldn't reclaim server port.");
+					log_err("Couldn't reclaim server port.");
 				        process.exit()
 				}
 			}, 500);
@@ -320,7 +330,10 @@ server.on('error',function(e){
 
 server.on('listening',function(){
 	server_listening_ok = true
-	console.log("HTTP: Server started at http://"+ SERVER_HOST + ":" + SERVER_PORT + "/ (serving dir: "+ Path.resolve(SERVER_DOC_ROOT) +")")
+	log("Server v" +VERSION+ " (at "+__dirname+") started for http://"+ SERVER_HOST + ":" + SERVER_PORT 
+		+ "/ serving "+ Path.resolve(SERVER_DOC_ROOT) +"")
+
+	//Just for myself: what exactly these other ways of printing are/were?
 	//Util.puts("Server Running on port " + SERVER_PORT);
 	// Sys.puts("Sys.puts vs. Util.puts vs. console.log?...");  
 })
