@@ -37,7 +37,7 @@ SETUP
   will come. Surprisingly, this is about all you need for a quick start:
 
 	php-cgi.exe
-	php5ts.dll
+	php5[ts].dll
 	php.ini
 
 - NODE.exe is included for Windows (XP). On other systems you'll need 
