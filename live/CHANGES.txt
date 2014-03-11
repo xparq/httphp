@@ -12,6 +12,9 @@ DONE:
 =====
 [REMEMBER TO CHANGE THE VERSION IN THE SOURCE, TOO!]
 
+2014-03-11 - v1.04
++ Remove DEBUG messages from the log by default.
+
 2014-03-11 - v1.03
 + Extended the index file lookup list (notably with README.md and README.txt).
 + [cgi-ok-error] Handle error "OK" in cgi exec... 

@@ -9,13 +9,16 @@ TODO:
 + PHP internal ?=PHPxxx URIs fail with surplus slashes (like //index.php)
 */
 
-var VERSION = "1.03"
+var VERSION = "1.04"
 
 // Server config:
 var SERVER_PORT = 80
 var SERVER_HOST = "127.0.0.1"
 var SERVER_DOC_ROOT = "."
 var SERVER_INDEX_FILES = "index.html, index.php, README.txt, README.md, index.htm"
+// This is stupid, but noone will care for the time being. 
+// Vastly more stupid things are to be found here already. ;)
+var SERVER_LOG_FILTER = ['debug'] // block debug messages (debug, notice, warning, error)
 
 // URI -> dir ("alias") map. Will be set after processing the args!
 var dirmap = {}
@@ -84,17 +87,17 @@ process.argv.forEach(function (arg, i, array) {
 	switch (param_of) {
 	case '-p':
 		SERVER_PORT = arg
-		log_notice("SERVER_PORT changed to '" + SERVER_PORT + "'")
+		log_notice("SERVER_PORT set to '" + SERVER_PORT + "'")
 		param_of = null
 		break
 	case '-d':
 		SERVER_DOC_ROOT = arg
-		log_notice("SERVER_DOC_ROOT changed to '" + SERVER_DOC_ROOT + "'")
+		log_notice("SERVER_DOC_ROOT set to '" + SERVER_DOC_ROOT + "'")
 		param_of = null
 		break
 	case '-i':
 		SERVER_INDEX_FILES = arg
-		log_notice("SERVER_INDEX_FILES changed to '" + SERVER_INDEX_FILES + "'")
+		log_notice("SERVER_INDEX_FILES set to '" + SERVER_INDEX_FILES + "'")
 		param_of = null
 		break
 	}			
@@ -131,7 +134,8 @@ function log_notice(msg) {
 	log("notice: "+ msg)
 }
 function log_debug(msg) {
-	log(">> DEBUG <<: "+ msg)
+	if (!'debug' in SERVER_LOG_FILTER)
+		log(">> DEBUG <<: "+ msg)
 }
 
 
