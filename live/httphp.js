@@ -9,13 +9,13 @@ TODO:
 + PHP internal ?=PHPxxx URIs fail with surplus slashes (like //index.php)
 */
 
-var VERSION = "1.02"
+var VERSION = "1.03"
 
 // Server config:
 var SERVER_PORT = 80
 var SERVER_HOST = "127.0.0.1"
 var SERVER_DOC_ROOT = "."
-var SERVER_INDEX_FILES = "index.html, index.php"
+var SERVER_INDEX_FILES = "index.html, index.htm, index.php, README.md, README.txt"
 
 // URI -> dir ("alias") map. Will be set after processing the args!
 var dirmap = {}
