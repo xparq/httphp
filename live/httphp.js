@@ -53,6 +53,14 @@ function log(msg) {
 	console.log(LOGPREFIX + TIMESTAMP + msg)
 }
 
+
+//
+// main...
+//
+
+log("HTTPHP Server v" +VERSION+ " at "+__dirname+" started.")
+
+
 // Options to override the defaults:
 // -p port
 // -d webdir
@@ -142,7 +150,7 @@ function respond_404(request, response, reqpath, file_to_serve_fullpath) {
 var keys = dirmap.keys
 for (d in dirmap) {
 	var dir = dirmap[d]
-	log_notice("Checking dir '" + dir + "'")
+	log_debug("Checking dir '" + dir + "'")
 	if (!Fs.existsSync(dir)) {
 		log_err("Cannot serve non-existing dir '"+ dir +"', exiting...")
 		return
@@ -302,7 +310,7 @@ var kill_request_sent = false
 
 server.on('error',function(e){
 	if (e.code == 'EADDRINUSE') {
-		log_err("Port "+ SERVER_PORT +" is already used. Trying to take over...");
+		log_warn("Port "+ SERVER_PORT +" is already used. Trying to take over...");
 
 		//http://nodejs.org/api/http.html#http_http_get_options_callback
 		Http.get("http://"+SERVER_HOST+":"+SERVER_PORT+"/?ctrl:stop!", function(res) {
@@ -330,8 +338,8 @@ server.on('error',function(e){
 
 server.on('listening',function(){
 	server_listening_ok = true
-	log("Server v" +VERSION+ " (at "+__dirname+") started for http://"+ SERVER_HOST + ":" + SERVER_PORT 
-		+ "/ serving "+ Path.resolve(SERVER_DOC_ROOT) +"")
+	log("Listening on http://"+ SERVER_HOST + ":" + SERVER_PORT 
+		+ "/ (serving "+ Path.resolve(SERVER_DOC_ROOT) +").")
 
 	//Just for myself: what exactly these other ways of printing are/were?
 	//Util.puts("Server Running on port " + SERVER_PORT);
