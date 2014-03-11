@@ -13,6 +13,7 @@ DONE:
 [REMEMBER TO CHANGE THE VERSION IN THE SOURCE, TOO!]
 
 2014-03-11 - v1.03
++ Extended the index file lookup list (notably with README.md and README.txt).
 + [cgi-ok-error] Handle error "OK" in cgi exec... 
   Yes, that "error" did happen on me, causing this exception:
   [1394546261311] GET /changes?db=xxx [mapped to: changes\index.php] - 200 (via PHP-CGI)
