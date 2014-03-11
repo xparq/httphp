@@ -12,6 +12,22 @@ DONE:
 =====
 [REMEMBER TO CHANGE THE VERSION IN THE SOURCE, TOO!]
 
+2014-03-11 - v1.03
++ [cgi-ok-error] Handle error "OK" in cgi exec... 
+  Yes, that "error" did happen on me, causing this exception:
+  [1394546261311] GET /changes?db=xxx [mapped to: changes\index.php] - 200 (via PHP-CGI)
+  CGI: 'OK' while trying to launch CGI executable 'php-cgi'.
+
+  http.js:733
+	    throw new Error('Can\'t render headers after they are sent to the client.'
+	          ^
+  Error: Can't render headers after they are sent to the client.
+	    at ServerResponse.OutgoingMessage._renderHeaders (http.js:733:11)
+	    at ServerResponse.writeHead (http.js:1174:20)
+	    at ChildProcess.<anonymous> (C:\sz\core\sw\live\_HOST_\Windows\XP\httphp\lib\php-cgi-sz.js:146:8)
+	    at ChildProcess.EventEmitter.emit (events.js:95:17)
+	    at Process.ChildProcess._handle.onexit (child_process.js:795:12)
+
 2014-03-11 - v1.02
 + Index lookup log changed to DEBUG.
 + Slightly refined startup logging.

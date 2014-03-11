@@ -9,7 +9,7 @@ TODO:
 + PHP internal ?=PHPxxx URIs fail with surplus slashes (like //index.php)
 */
 
-var VERSION = "1.02"
+var VERSION = "1.03"
 
 // Server config:
 var SERVER_PORT = 80

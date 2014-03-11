@@ -138,6 +138,8 @@ var Me = {
 			case 'ENOENT':
 				error_msg = "Couldn't find CGI executable '"+Me.bin+"'."
 				break
+			case 'OK':	// Huh?! (See [cgi-ok-error].)
+				return
 			default:
 				error_msg = "'" + e.code + "' while trying to launch CGI executable '"+Me.bin+"'."
 				break
