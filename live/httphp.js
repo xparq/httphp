@@ -225,7 +225,7 @@ var server = Http.createServer(function(request, response) {
 		SERVER_INDEX_FILES.split(",").some(function(index) {
 			file_to_serve          = Path.join(reqpath, index.trim())
 			file_to_serve_fullpath = Path.join(SERVER_DOC_ROOT, file_to_serve)
-			log_notice("trying index: '" + file_to_serve_fullpath +"'")
+			log_debug("trying index: '" + file_to_serve_fullpath +"'")
 			if (Fs.existsSync(file_to_serve_fullpath)) {
 				INDIRECT_INDEX = file_to_serve_fullpath
 				return true
