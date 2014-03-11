@@ -1,7 +1,6 @@
 TODO:
 =====
 
-+ "OOPS: cannot launch CGI executable!" leaves the request hanging.
 + -a for "attach as alias" (regexp)
 + File-type handlers (move PHP to php-handler, add js etc.).
 + Support for regular "ctrl:" request handling. 
@@ -13,9 +12,13 @@ DONE:
 =====
 [REMEMBER TO CHANGE THE VERSION IN THE SOURCE, TOO!]
 
+2014-03-11 - v1.01
++ Added proper MIME types for the most common file types (suffixes).
++ Moved the in-source change history here. (Some TODOs still left there.)
+
 2014-03-10
-+ CGI "cannot launch CGI executable!" leaves the request hanging.
-+ Added 500 error "body" messages, too.
++ FIX: CGI "cannot launch CGI executable!" leaves the request hanging.
++ Added 500 error response body messages.
 + Removed "testweb" from under the "live" dir (and added to .gitignore).
 
 2014-03-08 - v1
@@ -25,6 +28,9 @@ DONE:
 + Added -h for help.
 + Tagged as version 1.
 + GIT'ed locally.
+
+2014-02-10
+* Some preparions to add an URI->dir map (generalized, not just "alias"?).
 
 2014-02-05
 + Minor changes to some error logs.
@@ -42,13 +48,29 @@ DONE:
 + FIX SCRIPT_NAME, PATH_INFO, PHP_SELF. (PATH_INFO currently unsupported;
   always empty.)
 + Command line support for webdir and port.
-+ Support for implicit index file list.
++ Make SERVER_INDEX_FILES a list.
 + Set 'REQUEST_URI' in the CGI env.
 + Set 'SERVER_PORT' and 'SERVER_NAME' (to what's in the request!) in the CGI env.
++ Check for existing DOC_ROOT.
++ php-cgi-sz.js moved to ./lib.
+
+2014-02-03
++ Rudimentary command-line support for changing SERVER_DOC_ROOT.
++ POST support: seems to just work fine as is (via PHP, too).
++ Moved php-cgi (as php-cgi-sz) here from the Node repo.
++ Force text/html for .html and .htm extensions. (Chrome would see them 
+	as /plain, unless they start with "<" or something like that.)
++ Fix extension checking: use the local file, not the request.
++ collapse multiple '/' slashes in the req.
++ 500 EISDIR error on requesting dirs
++ Add php-cgi
++ Fix php-cgi (see there!)
++ HTTP logging
++ Basic SERVER_... cfg. vars (port, webdir, index-file)
 
 2014-02-03
 * Tested on Linux with PHP-CGI 5.5.0RC1
 * Added start shell script for Linux.
 
-2014-02-01
-* Works nicely on Windows, with PHP-CGI 5.4.14.
+2014-02-02
+* Works on Windows, with PHP-CGI 5.4.14.

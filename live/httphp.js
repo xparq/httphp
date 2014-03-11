@@ -7,44 +7,9 @@ TODO:
   http://neurowebltd.co.uk/homewatch/mobil-kisvarda/_custom_/test/p.php)
 + Cookies? Sessions? Check!
 + PHP internal ?=PHPxxx URIs fail with surplus slashes (like //index.php)
-
-DONE:
-
-2014-02-10
-* Some preparions to add an URI->dir map.
-
-2014-02-05
-+ Rudimentary port reclaiming (or server instance replacing) protocol added.
-
-2014-02-04
-+ FIX SCRIPT_NAME, PATH_INFO, PHP_SELF!
-+ Make SERVER_INDEX_FILES a list.
-+ Cmd-line args:
-+ Check for existing DOC_ROOT.
-	process.argv.forEach(function (val, index, array) {
-		console.log(index + ': ' + val); });
-+ php-cgi-sz.js moved to (the new) lib/.
-
-2014-02-03
-+ Rudimentary command-line support for changing SERVER_DOC_ROOT.
-+ POST support: seems to just work fine as is (via PHP, too).
-+ Moved php-cgi to this local dir from the repo. (removed from there, too).
-+ Force text/html for .html and .htm extensions. (By default they will be /plain,
-	unless they start with "<" or something like that...)
-+ Fix extension checking: use the local file, not the request.
-+ collapse multiple '/' slashes in the req.
-+ 500 EISDIR error on requesting dirs
-+ Add php-cgi
-+ Fix php-cgi (see there!)
-+ HTTP logging
-+ Basic SERVER_ vars (port, webdir, index-file)
-
-2014-02-02
-* Created.
-
 */
 
-var VERSION = "1"
+var VERSION = "1.01"
 
 // Server config:
 var SERVER_PORT = 80
@@ -55,7 +20,19 @@ var SERVER_INDEX_FILES = "index.html, index.php"
 // URI -> dir ("alias") map. Will be set after processing the args!
 var dirmap = {}
 
-
+// Stealing from: http://trac.nginx.org/nginx/browser/nginx/conf/mime.types
+var map_ext_to_content_type = {
+	".html":        "text/html",
+	".htm":		"text/html",
+	".js":		"application/javascript",
+	".css":		"text/css",
+	".jpg":		"image/jpeg",
+	".jpeg":	"image/jpeg",
+	".png":		"image/png",
+	".gif":		"image/gif",
+	".ico":		"image/x-icon",
+	".txt":		"text/plain",
+}
 
 function show_help() {
 	console.log("HTTPHP v"+VERSION+" - Instant low-tech PHP server for local dirs")
@@ -181,8 +158,8 @@ var server = Http.createServer(function(request, response) {
 	var requri = Url.parse(request.url)
 	var reqpath = requri.pathname || '/'
 	var file_to_serve = reqpath
-	var file_to_serve_fullpath
-
+	var file_to_serve_fullpath = ''
+	var file_ext = ''
 
 	//!!EXPERIMENTAL:
 	if (/*requri.protocol == 'ctrl:' ||*/ request.url.indexOf('ctrl:stop!') > -1) {
@@ -250,7 +227,8 @@ var server = Http.createServer(function(request, response) {
 		// Just use path instead of this:
 		// reqdata = Url.parse(request.url, true);
 
-		switch (Path.extname(file_to_serve)) {
+		file_ext = Path.extname(file_to_serve)
+		switch (file_ext) {
 
 			case ".php":
 				var phpCGI = require("./lib/php-cgi-sz");
@@ -276,15 +254,11 @@ var server = Http.createServer(function(request, response) {
 
 				break;
 
-			case ".html":
-			case ".htm":
-				response.setHeader("Content-Type", "text/html");
-				// no break, fll through!
-
 			default:
 				Fs.readFile(file_to_serve_fullpath, "binary", function(err, file) {
 
 					if (!err) {
+						response.setHeader("Content-Type", map_ext_to_content_type[file_ext]);
 						response.writeHeader(200)
 						response.write(file, "binary")
 						response.end()
@@ -305,7 +279,7 @@ var server = Http.createServer(function(request, response) {
 		}
 
         } else {
-console.log("hello" + request.url)
+//console.log("hello" + request.url)
 		respond_404(request, response, reqpath, file_to_serve_fullpath)
 	}
 
