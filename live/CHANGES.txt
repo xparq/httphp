@@ -12,6 +12,11 @@ DONE:
 =====
 [REMEMBER TO CHANGE THE VERSION IN THE SOURCE, TOO!]
 
+2014-03-15 - v1.05
++ FIX handling urlencoded URLs (i.e. filenames with spaces). 
+  (There was no decoding at all).
++ FIX log_debug was silent despite not filtering.
+
 2014-03-11 - v1.04
 + Remove DEBUG messages from the log by default.
 

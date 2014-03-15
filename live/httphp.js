@@ -9,7 +9,7 @@ TODO:
 + PHP internal ?=PHPxxx URIs fail with surplus slashes (like //index.php)
 */
 
-var VERSION = "1.04"
+var VERSION = "1.05"
 
 // Server config:
 var SERVER_PORT = 80
@@ -134,7 +134,7 @@ function log_notice(msg) {
 	log("notice: "+ msg)
 }
 function log_debug(msg) {
-	if (!'debug' in SERVER_LOG_FILTER)
+	if (!('debug' in SERVER_LOG_FILTER))
 		log(">> DEBUG <<: "+ msg)
 }
 
@@ -177,11 +177,16 @@ function get_root_dir_for_uri_path(uri_path) {
 
 // Based on: http://www.hongkiat.com/blog/node-js-server-side-javascript/
 var server = Http.createServer(function(request, response) {
-	var requri = Url.parse(request.url)
+ 	//!!HOW ABOUT DECODING THE QS TOO? Whose repsponsibility is that?
+	// var requri = decodeURIComponent(Url.parse(request.url, true).path.replace(/\+/g, ' ')) //https://groups.google.com/forum/#!topic/nodejs/8P7GZqBw0xg
+	var requri = Url.parse(request.url)  //! encoded
 	var reqpath = requri.pathname || '/'
+	var reqpath = decodeURIComponent(Url.parse(reqpath, false, true).path.replace(/\+/g, ' ')) //https://groups.google.com/forum/#!topic/nodejs/8P7GZqBw0xg
 	var file_to_serve = reqpath
 	var file_to_serve_fullpath = ''
 	var file_ext = ''
+
+log_debug('reqpath: '+reqpath)
 
 	//!!EXPERIMENTAL:
 	if (/*requri.protocol == 'ctrl:' ||*/ request.url.indexOf('ctrl:stop!') > -1) {
@@ -200,12 +205,13 @@ var server = Http.createServer(function(request, response) {
 	}
 
 
-
 	// Check if the requested URI maps to an existing dir,
 	// and append an index file if yes.
 	// CHECK whether the appended index file also does 
 	// exist. If not, bail out with 404.
 	file_to_serve_fullpath = Path.join(SERVER_DOC_ROOT, file_to_serve)
+log_debug('file_to_serve_fullpath: ' + file_to_serve_fullpath)
+
 	try {
 		stats = Fs.statSync(file_to_serve_fullpath)//!!, function(err, stats) {
 	} catch(err) {
