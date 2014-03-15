@@ -1,0 +1,1 @@
+http://stackoverflow.com/questions/7268033/basic-static-file-server-in-nodejs
