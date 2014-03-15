@@ -211,7 +211,7 @@ var server = Http.createServer(function(request, response) {
 	// CHECK whether the appended index file also does 
 	// exist. If not, bail out with 404.
 	file_to_serve_fullpath = Path.join(SERVER_DOC_ROOT, file_to_serve)
-	log_debug('file_to_serve_fullpath: '+file_to_serve_fullpath)
+	log_debug('file_to_serve_fullpath: ' + file_to_serve_fullpath)
 	try {
 		stats = Fs.statSync(file_to_serve_fullpath)//!!, function(err, stats) {
 	} catch(err) {
