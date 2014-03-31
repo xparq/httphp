@@ -1,27 +1,25 @@
-/*
-TODO:
+// Product:
+var NAME = "HTTPHP"
+var VERSION = "1.06"
 
-+ FIX backslash in SCRIPT_NAME, PHP_SELF etc. 
-  Seems wrong only for files directly in SERVER_DOC_ROOT but not in subdirs.
-  See the prj browser at P:\, or e.g. 
-  http://neurowebltd.co.uk/homewatch/mobil-kisvarda/_custom_/test/p.php)
-+ Cookies? Sessions? Check!
-+ PHP internal ?=PHPxxx URIs fail with surplus slashes (like //index.php)
-*/
-
-var VERSION = "1.05"
-
-// Server config:
+// Default server config:
+var SERVER_PROTOCOL = "http"
 var SERVER_PORT = 80
 var SERVER_HOST = "127.0.0.1"
 var SERVER_DOC_ROOT = "."
-var SERVER_INDEX_FILES = "index.html, index.php, README.txt, README.md, index.htm"
+var SERVER_INDEX_FILES = "index.html, index.php, README.txt, README.md, default.html, index.htm"
 // This is stupid, but noone will care for the time being. 
 // Vastly more stupid things are to be found here already. ;)
-var SERVER_LOG_FILTER = ['debug'] // block debug messages (debug, notice, warning, error)
+var SERVER_LOG_FILTER = [/*'debug', 'notice'*/] // block some noise (debug, notice, warning, error)
 
 // URI -> dir ("alias") map. Will be set after processing the args!
-var dirmap = {}
+//!! (How this relates to the legacy SERVER_DOC_ROOT is not 100% clear yet. 
+//!! For now '/' -> SERVER_DOC_ROOT is the only default alias map entry, and
+//!! SERVER_DOC_ROOT is, unfortunately, also used directly at several places
+//!! "the" (only) legacy docroot value.)
+var dirmap = {
+	'/': SERVER_DOC_ROOT,
+}
 
 // Stealing from: http://trac.nginx.org/nginx/browser/nginx/conf/mime.types
 var map_ext_to_content_type = {
@@ -37,8 +35,15 @@ var map_ext_to_content_type = {
 	".txt":		"text/plain",
 }
 
+// Will set this after params processing:
+var SERVER_URL_PREFIX = 'UNINITIALIZED!'
+
+//---------------------------------------------------------------------------
+// Helpers, utils. etc...
+//---------------------------------------------------------------------------
+
 function show_help() {
-	console.log("HTTPHP v"+VERSION+" - Instant low-tech PHP server for local dirs")
+	console.log(NAME + "v"+VERSION+" - Instant low-tech PHP server for local dirs")
 	console.log("")       
 	console.log("httphp           : Serve the current dir as http://localhost/")
 	console.log("        -h       : Show this help (and exit).")
@@ -56,13 +61,38 @@ function log(msg) {
 	console.log(LOGPREFIX + TIMESTAMP + msg)
 }
 
+function log_http(request, urlpath, localpath, result, note) {
+	log(request.method +" "+ request.url +" [mapped to: "+ localpath +"] - "+ result + " "+ note)
+}
 
-//
+function log_err(msg) {
+	log("ERROR: "+ msg)
+}
+function log_warn(msg) {
+	if (SERVER_LOG_FILTER.indexOf('warn') == -1)
+		log("WARNING: "+ msg)
+}
+function log_notice(msg) {
+	if (SERVER_LOG_FILTER.indexOf('notice') == -1)
+		log("notice: "+ msg)
+}
+function log_debug(msg) {
+	if (SERVER_LOG_FILTER.indexOf('debug') == -1)
+		log(">> DEBUG <<: "+ msg)
+}
+
+
+//---------------------------------------------------------------------------
 // main...
-//
+//---------------------------------------------------------------------------
+var Http = require('http')
+var Path = require("path")  
+var Url = require("url")
+var Fs = require("fs")
+//var Util = require("util")
+var phpCGI = require("./lib/php-cgi-sz");
 
 log("HTTPHP Server v" +VERSION+ " at "+__dirname+" started.")
-
 
 // Options to override the defaults:
 // -p port
@@ -107,38 +137,9 @@ if (param_of) {
 	return
 }
 
-
-// Now we can set this:
-var dirmap = {
-	'/': SERVER_DOC_ROOT,
-}
-
-var Http = require('http')
-var Path = require("path")  
-var Url = require("url")
-var Fs = require("fs")
-//var Util = require("util")
-
-
-function log_http(request, urlpath, localpath, result, note) {
-	log(request.method +" "+ request.url +" [mapped to: "+ localpath +"] - "+ result + " "+ note)
-}
-
-function log_err(msg) {
-	log("ERROR: "+ msg)
-}
-function log_warn(msg) {
-	if (SERVER_LOG_FILTER.indexOf('warn') == -1)
-		log("WARNING: "+ msg)
-}
-function log_notice(msg) {
-	if (SERVER_LOG_FILTER.indexOf('notice') == -1)
-		log("notice: "+ msg)
-}
-function log_debug(msg) {
-	if (SERVER_LOG_FILTER.indexOf('debug') == -1)
-		log(">> DEBUG <<: "+ msg)
-}
+// Set this for the request handler
+//! NOTE: THESE CAN'T BE RECONFIGURED RUN-TIME, so enough to set it once.
+SERVER_URL_PREFIX = SERVER_PROTOCOL + "://" + SERVER_HOST + ":" + SERVER_PORT
 
 
 function respond_404(request, response, reqpath, file_to_serve_fullpath) {
@@ -149,20 +150,26 @@ function respond_404(request, response, reqpath, file_to_serve_fullpath) {
 	log_http(request, reqpath, file_to_serve_fullpath, 404, "Not Found")
 }
 
-
-// Check each dir in the dir map
+// Check dirs in the dir map (for each or for a specific url)
+function check_alias(dirmap, specific_url) {
 //!! Since we'll have to handle filesystem errors for each individual request
 //!! anyway, this checking here is nothing more than just a vague example.
-var keys = dirmap.keys
-for (d in dirmap) {
-	var dir = dirmap[d]
-	log_debug("Checking dir '" + dir + "'")
-	if (!Fs.existsSync(dir)) {
-		log_err("Cannot serve non-existing dir '"+ dir +"', exiting...")
-		return
+//!! Then it's better to leave a broken alias on, since the user may want to
+//!! fix it while the server is running.
+
+	var url//, keys = dirmap.keys
+	for (url in dirmap) {
+		if (typeof(specific_url) === 'undefined' 
+			|| url == specific_url) { // Make this check real: trim, substr. etc!
+			var dir = dirmap[url]
+			log_debug("Checking dir '" + dir + "'")
+			if (!Fs.existsSync(dir)) {
+				log_err("Cannot serve non-existing dir '"+ dir +"', exiting...")
+				return
+			}
+		}
 	}
 }
-
 
 // 0. Precondition: each key in dirmap must end with a trailing slash.
 // 1. Take each alias 'a' from dirmap, in their set order.
@@ -179,18 +186,43 @@ function get_root_dir_for_uri_path(uri_path) {
 
 // Based on: http://www.hongkiat.com/blog/node-js-server-side-javascript/
 var server = Http.createServer(function(request, response) {
+	//! sz: hostname is stripped from request.url
+
  	//!!HOW ABOUT DECODING THE QS TOO? Whose repsponsibility is that?
-	// var requri = decodeURIComponent(Url.parse(request.url, true).path.replace(/\+/g, ' ')) //https://groups.google.com/forum/#!topic/nodejs/8P7GZqBw0xg
-	var requri = Url.parse(request.url)  //! encoded
-	var reqpath = requri.pathname || '/'
-	var reqpath = decodeURIComponent(Url.parse(reqpath, false, true).path.replace(/\+/g, ' ')) //https://groups.google.com/forum/#!topic/nodejs/8P7GZqBw0xg
-	var file_to_serve = reqpath
+ 	//!!Currently the PHP-CGI handler does it alone (from the raw request)
+
+	var canonical_url = (SERVER_URL_PREFIX + request.url)
+						.replace(/([^:\/])[\/]+([^\/])/g, '$1/$2') // - this is for:
+						// [url.parse-crash] - Path.extname would fail if path starts with '//'!
+						// [php-multislash-internals] - multiple slashes in PHP_SELF & SCRIPT_NAME break phpinfo()
+
+	var parsed_uri = Url.parse(
+						canonical_url/* still URL-encoded! */,
+						false/* strip QS! */, 
+						false/* canonical_url is absolute & unambiguous */
+					)
+	var reqpath = parsed_uri.pathname || '/'
+	var file_to_serve = ''
 	var file_to_serve_fullpath = ''
 	var file_ext = ''
-	log_debug('reqpath: '+reqpath)
 
-	//!!EXPERIMENTAL:
-	if (/*requri.protocol == 'ctrl:' ||*/ request.url.indexOf('ctrl:stop!') > -1) {
+	reqpath = decodeURIComponent(reqpath.replace(/\+/g, ' ')) //https://groups.google.com/forum/#!topic/nodejs/8P7GZqBw0xg
+	file_to_serve = reqpath
+
+//	log_debug('request.host: '+request.host)
+	log_debug("canonical_url: " + canonical_url)
+	log_debug("parsed_uri.host: " + parsed_uri.host)
+	log_debug("parsed_uri.hostname: " + parsed_uri.hostname)
+	log_debug("parsed_uri.pathname: " + parsed_uri.pathname)
+	log_debug("parsed_uri.path: " + parsed_uri.path)
+	log_debug("URI-path: " + parsed_uri.pathname)
+//	log_debug("URI-path + QS: " + parsed_uri.path) //! QS has been stripped off
+	log_debug("reqpath before decoding: " + reqpath)
+	log_debug("reqpath decoded: " + reqpath)
+	log_debug("file_to_serve: " + file_to_serve)
+
+	// Handle internal command requests (!!EXPERIMENTAL HACK YET!)
+	if (request.url.indexOf("ctrl:stop!") > -1) {
 		log_notice("STOP! (Requested by ["+request.url+"] (!!source tracking not implemented!!)");
 
 		response.writeHeader(200)
@@ -205,19 +237,18 @@ var server = Http.createServer(function(request, response) {
 		return
 	}
 
-
-	// Check if the requested URI maps to an existing dir,
-	// and append an index file if yes.
-	// CHECK whether the appended index file also does 
-	// exist. If not, bail out with 404.
-	file_to_serve_fullpath = Path.join(SERVER_DOC_ROOT, file_to_serve)
+	//
+	// Locate the resource (generally a file) to serve...
+	//
+	file_to_serve_fullpath = SERVER_DOC_ROOT + file_to_serve
 	log_debug('file_to_serve_fullpath: ' + file_to_serve_fullpath)
+
 	try {
 		stats = Fs.statSync(file_to_serve_fullpath)//!!, function(err, stats) {
 	} catch(err) {
 		if (err.code == 'ENOENT') {
-			//!! The uri may not exist as a file, but that's not an error!
-			//!! BUT NOW, FOR DEBUBBING:
+			//!! The URL may map to an existing file, but that's not necessarily an error!
+			//!! BUT NOW, FOR DEBUGGING:
 			respond_404(request, response, reqpath, file_to_serve_fullpath)
 		} else {
 			response.writeHeader(500, {"Content-Type": "text/plain"})
@@ -228,17 +259,20 @@ var server = Http.createServer(function(request, response) {
 		return;
 	}
 
+	// Check if the request points to an existing dir, and
+	// then append an index file if one exists in that dir.
+	// If not, bail out with 404.
 	if (stats.isDirectory()) {
-
 		var INDIRECT_INDEX = null
-
 		SERVER_INDEX_FILES.split(",").some(function(index) {
 			file_to_serve          = Path.join(reqpath, index.trim())
 			file_to_serve_fullpath = Path.join(SERVER_DOC_ROOT, file_to_serve)
-			log_debug("trying index: '" + file_to_serve_fullpath +"'")
 			if (Fs.existsSync(file_to_serve_fullpath)) {
 				INDIRECT_INDEX = file_to_serve_fullpath
+				log_debug("using index file: '" + file_to_serve_fullpath +"'")
 				return true
+			} else {
+				log_debug("index file not found: '" + file_to_serve_fullpath +"'")
 			}
 		})
 		if (!INDIRECT_INDEX) {
@@ -248,23 +282,20 @@ var server = Http.createServer(function(request, response) {
 		}
 	}
 
+	log_debug("file_to_serve: " + file_to_serve)
+
 	// NOTE: stats.isSymbolicLink() transparently handled by stat()
 	if (stats.isFile() || INDIRECT_INDEX) {
 
 		// Based on the php-cgi README:
-		// Just use path instead of this:
-		// reqdata = Url.parse(request.url, true);
+		// Just use 'path' instead of Url.parse(request.url, true)
 
 		file_ext = Path.extname(file_to_serve)
+		log_debug("filename suffix: " + file_ext)
+
 		switch (file_ext) {
 
 			case ".php":
-				var phpCGI = require("./lib/php-cgi-sz");
-				// This would force-use the 'php-bin-win32' Node.js package on Win32,
-				// which would causing an error if not installed, instead of just using 
-				// the default "php-cgi".
-				//  phpCGI.detectBinary();//on windows get a portable php to run.
-				// --> CGI RFC: http://tools.ietf.org/html
 				    phpCGI.env['REQUEST_URI'] = request.url; // PHP-specific
 				    phpCGI.env['DOCUMENT_ROOT'] = SERVER_DOC_ROOT + Path.sep;
 				    phpCGI.env['SERVER_PORT'] = SERVER_PORT;
@@ -307,7 +338,7 @@ var server = Http.createServer(function(request, response) {
 		}
 
         } else {
-//log_debug("hello" + request.url)
+//log_debug("404: " + request.url)
 		respond_404(request, response, reqpath, file_to_serve_fullpath)
 	}
 

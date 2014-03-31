@@ -1,18 +1,54 @@
 TODO:
 =====
+[REMEMBER TO UPDATE 'VERSION' IN THE SOURCE, TOO!]
 
-+ -a for "attach as alias" (regexp)
-+ File-type handlers (move PHP to php-handler, add js etc.).
-+ Support for regular "ctrl:" request handling. 
-+ Better STOP request handling: add some security token?
-  (Since this is meant to be a local-only server, no need to complicate things that far!)
-
+! [add-alias-dir] -a for "add alias dir" (with regexp support, later)
+    Also add the corresponding "ctrl:" command (generalize out the "control commander",
+    like apachectl!)
+! File-type handlers (move PHP to php-handler, add js etc.).
+! Check cookies & PHP sessions.
+! Better 'CTRL:' request handling: add some security token?
+  (Since this is meant to be local-only, no need to complicate things too far!)
+! FIX backslashes in SCRIPT_NAME, PHP_SELF etc. 
+  Seems wrong only for files directly in SERVER_DOC_ROOT (but not in subdirs).
+  See e.g. the prj browser at P:\)
+! Add a nice replaceable autoindex PHP module! (Design a general PHP addon module
+  interface for that! (Preferably just some drop-in dir.))
 
 DONE:
 =====
-[REMEMBER TO CHANGE THE VERSION IN THE SOURCE, TOO!]
 
-2014-03-15 - v1.05
+2014-03-31 - v1.06
++ [php-multislash-internals]
+  PHP internal ?=PHPxxx URIs used to fail with surplus slashes (like //index.php).
+  See also [url.parse-crash].
+  + Check if this is the same for other servers, too!
+  -> No, LAMP is fine; Apache normalizes the slashes in PHP_SELF & SCRIPT_NAME
+    (which may be the key!), so now I also do the same.
+
++ [url.parse-crash]
+  Crash when double slashes in the URL: localhost// (or localhost//index.html).
+  (Curiously, it does *NOT* crash for localhost/// or localhost/.)
+  httphp.js:194
+  r reqpath = decodeURIComponent(Url.parse(reqpath, false, true).path.replace(/\
+                                                                    ^
+  TypeError: Cannot call method 'replace' of null
+    at Server.<anonymous> (P:\webdev\server\httphp\live\httphp.js:194:72)
+    at Server.EventEmitter.emit (events.js:98:17)
+    at HTTPParser.parser.onIncoming (http.js:2108:12)
+    at HTTPParser.parserOnHeadersComplete [as onHeadersComplete] (http.js:121:23)
+    at Socket.socket.ondata (http.js:1966:22)
+    at TCP.onread (net.js:525:27)
+
+  (Note: seems to be related to [php-multislash-internals], too.)
+  
+  -> It was ultimately caused by Path.extname("//path/file.ext") returning
+    nothing (https://github.com/joyent/node/issues/7386).
+
++ Docs. updated preparing for [add-alias-dir].
++ Minor code improvements.
+
+2014-03-15 - v1.05 [Incorrect version tag on GitHub!]
 + FIX handling urlencoded URLs (i.e. filenames with spaces). 
   (There was no decoding at all).
 + FIX log_debug was silent despite not filtering.

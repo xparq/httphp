@@ -9,7 +9,7 @@ if exist "%~dp0node.exe" goto launch_in_same_dir
 :: Our only hope is that it's on the PATH.
 :no_node
 echo HTTPHP: Please put this script (%0) to the HTTPHP server dir, 
-echo and re-launch it.
+echo and re-launch it (preferably via 'start').
 goto :EOF
 
 

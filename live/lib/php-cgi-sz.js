@@ -1,22 +1,25 @@
 /**
 Based on php-cgi 0.2.0
+See also: CGI RFC: http://tools.ietf.org/html
 
-sz:
-
-+ Added try-catch around spawn().
+Changes by Sz.:
++ Disabled bogus detectBinary().
++ Added error (ENOENT) handling for spawn().
 + Disabled bogus PATH_INFO and PATH_TRANSLATED.
 + Fixed PHP startup: added missing REDIRECT_STATUS.
 + Fixed query string handling to support special PHP "?=PHPxxxx" params.
-  (Disabled QS-parsing and removed unnecessary(?) urlencoding.)
+  (Disabled QS-parsing and tentatively removed unnecessary(?) urlencoding.)
 + Fixed response body for non-text data.
 + Confusing 'paramsForRequest' renamed to 'prepareCGIEnv'.
 + 'newRequestParams' renamed to 'getRequestVars'.
 + Changed (simplified & extended) the serveResponse() API.
 + Renamed 'serveResponse' to 'process'.
-
++ Added missing require("path").
 */
-var os = require("os");
-var spawn = require('child_process').spawn;
+var OS = require('os')
+var Path = require('path')
+var Url = require('url')
+var spawn = require('child_process').spawn
 
 
 //http://social.msdn.microsoft.com/Forums/vstudio/en-US/15514c1a-b6a1-44f5-a06c-9b029c4164d7/searching-a-byte-array-for-a-pattern-of-bytes?forum=csharpgeneral
@@ -25,58 +28,58 @@ function find(array, pattern)
     if (!array)   return -1
     if (!pattern) return -1
 
-    var found = -1;
+    var found = -1
     for (var i = 0; i <= array.length - pattern.length; i++)
     {
-        found = i;
+        found = i
         for (var j = 0; j < pattern.length; j++)
         {
             if (array[i + j] != pattern[j])
             {
-                found = -1;
-                break;
+                found = -1
+                break
             }
         }
-        if (found != -1) break;
+        if (found != -1) break
     }
-    return found;
+    return found
 }
 
 
+var Exports = {
+	bin: "php-cgi",
 
-var Me = {
-	bin:"php-cgi",
-
-	env:{
+	env: {
 		 'SERVER_SOFTWARE':"nodejs"
 		,'SERVER_PROTOCOL':"HTTP/1.1"
 		,'GATEWAY_INTERFACE':"CGI/1.1"
-		,'SERVER_NAME':os.hostname()
+		,'SERVER_NAME':OS.hostname()
 		,'REDIRECT_STATUS_ENV':0
-	},setEnv:function(env) {
+	},
+	setEnv: function(env) {
 		for(var e in env) {
-			Me.env[e] = env[e];
+			Exports.env[e] = env[e];
 		}
-	},getRequestVars:function() {
+	},
+	getRequestVars: function() {
 		var reqEnv = {};
-		for(var keys = Object.keys(Me.env), l = keys.length; l; --l)	{
-		   reqEnv[ keys[l-1] ] = Me.env[ keys[l-1] ];
+		for(var keys = Object.keys(Exports.env), l = keys.length; l; --l)	{
+		   reqEnv[ keys[l-1] ] = Exports.env[ keys[l-1] ];
 		}
 		return reqEnv;
-	},prepareCGIEnv:function(scriptfile, req, reqEnv) {
-		if (typeof(reqEnv) == "undefined") reqEnv = Me.getRequestVars();
+	},
+	prepareCGIEnv: function(scriptfile, req, reqEnv) {
+		if (typeof(reqEnv) == "undefined") reqEnv = Exports.getRequestVars();
 		
-//sz:
-//!!sz:		requri = require("url").parse(req.url,true);
-		requri = require("url").parse(req.url,false);
+//!!sz: WHY does 'false' work below?!
+//!!	requri = Url.parse(req.url,true);
+		requri = Url.parse(req.url,false);
 		//set environment variables for this request
 		reqEnv['SCRIPT_NAME']     = scriptfile;
 //sz: This would not work, as PHP assumes it to be a relative path:
 //		reqEnv['SCRIPT_NAME'] = scriptfile;
-		//!!sz: this line was missing:
-		Path = require("path")
-		reqEnv['PATH_INFO']       = ""; //!!UNSUPPORTED!
-		reqEnv['PATH_TRANSLATED'] = ""; //!!UNSUPPORTED!
+		reqEnv['PATH_INFO']       = ""; //! UNSUPPORTED
+		reqEnv['PATH_TRANSLATED'] = ""; //! UNSUPPORTED
 
 //sz: CGI paranoia kludge required by PHP-CGI
 //http://stackoverflow.com/questions/7047426/call-php-from-virtual-custom-web-server
@@ -113,19 +116,28 @@ var Me = {
 			reqEnv['AUTH_TYPE'] = req.headers.authorization.split(' ')[0];
 		}
 		return reqEnv;
-	},detectBinary:function() {
+	},
+	/*
+	//on windows get a portable php to run.
+	detectBinary: function() {
+		//sz: WARNING!
+		// Calling this on Win32 would force-load the 'php-bin-win32' Node.js
+		// package on Win32, REGARDLESS OF IT BEING INSTALLED AT ALL OR NOT!
+		// (I.e. it will cause an error if not installed.)
 		if (process.platform == 'win32') {
 			//detect a local "portable" php install.
-			Me.bin = require("php-bin-win32").bin;
+			Exports.bin = require("php-bin-win32").bin;
 		}
-	/**
+	},
+	*/
+	/** sz: WHAT DOES THIS COMMENT MEAN, AND IS IT RELATED TO detectBinary() OR process()?
 	* This is an automatic function, will add a function you can override later on.
 	*/
-	},process:function(scriptfile, req, res, end_callback, params) {
+	process: function(scriptfile, req, res, end_callback, params) {
 		if (typeof(end_callback) == "object") { params = end_callback; end_callback = null; }
 		if (typeof(params) == "undefined") params = {};
-		var reqEnv = Me.prepareCGIEnv(scriptfile, req);
-		cgi = spawn(Me.bin, [], {
+		var reqEnv = Exports.prepareCGIEnv(scriptfile, req);
+		cgi = spawn(Exports.bin, [], {
 			  env: reqEnv,
 			  stdio: 'pipe'
 		});
@@ -136,12 +148,12 @@ var Me = {
 		cgi.on('error', function(e) {
 			switch (e.code) {
 			case 'ENOENT':
-				error_msg = "Couldn't find CGI executable '"+Me.bin+"'."
+				error_msg = "Couldn't find CGI executable '"+Exports.bin+"'."
 				break
 			case 'OK':	// Huh?! (See [cgi-ok-error].)
 				return
 			default:
-				error_msg = "'" + e.code + "' while trying to launch CGI executable '"+Me.bin+"'."
+				error_msg = "'" + e.code + "' while trying to launch CGI executable '"+Exports.bin+"'."
 				break
 			}
 			console.log("CGI: "+ error_msg)
@@ -210,4 +222,4 @@ var Me = {
 	}
 }
 
-module.exports = Me;
+module.exports = Exports

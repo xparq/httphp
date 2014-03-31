@@ -4,27 +4,40 @@ HTTPHP - Instant low-tech PHP server for local dirs
 
 ABOUT
 
+This web server tries to be flexible, convenient and generally easy-going
+for *local* use. It doesn't pretend to be suitable for production use.
+(The goal was not to create yet another (subtly non-)standard, vanilla 
+HTTP server, only now in Node.js, just because it's hip and easy, but 
+to exploit the one real advantage Node.js has even in low-traffic contexts: 
+cheap flexibility and portability.)
+
 - Ideal for multi-project local(-only) PHP (and non-PHP) development.
 - One command, and the current dir is served on http://localhost.
-  (Yep, I know several other such tools, but read the next point.)
-- Re-launching the server on a port already used by a previous 
+  (Yep, several other such tools exist, but read on.)
+- Re-launching the server for a port already used by a previous 
   HTTPHP instance will stop the old one first. (No need to bother 
-  killing the running server manually. You see? "Ideal for local 
-  development", I told you. Whenever you just want to serve up some
-  project dir instantly, and than switch to another, there is no
-  simpler way than this.)
-- Powered by Node.js (v0.10.25 included), so it's easy to tweak. 
-  (And it's also slow... Did I mention "for internal development
-  only"? Yeah, NODE.js is fast, but only for I/O-bound high loads, 
-  which are not typical for low-tech indie web hacking HTTPHP is
-  made for. For random low-traffic loads, well, HTTP over Javascript
-  is slower even on V8 than HTTP over native code. It's quite 
-  tolerable, though.)
-- Uses PHP-CGI for .php files.
+  killing the running server manually.)
+- Multiple "web root" dirs (via URL aliases).
+- [!!TODO] Conveninent semi-automatic run-time reconfiguration. E.g., 
+  it can add a new dir to the ones already being served (with the
+  default URL path being the dirname, making it unique as needed).
+  (You see? "Ideal for local development", I told you. Whenever you 
+  just want to serve up some project dir instantly, and than switch 
+  to another, I know of no simpler way than this.)
+- Based on by Node.js (v0.10.25 included), so it's easy to tweak and
+  port (e.g. across Windows and Linux).
+  (Well, and it's also a bit slow then. Did I mention "for internal 
+  use only"? NODE.js, compared to native-code servers, is fast only
+  for I/O-bound high loads, which are not exactly typical for low-tech
+  indie web hacking and other local cases that HTTPHP is meant to be 
+  used for. For a low-traffic CGI setup, HTTP over  Javascript (even 
+  over V8) is obviously slower than HTTP over 
+  native code. It's quite tolerable, though.)
+- Launches the PHP-CGI executable for .php files.
 - Tested with PHP 5.4.14, on Windows XP, PHP 5.5.0RC1 on Debian.
-- It could work non-locally, too, but who would want to do that?
-- This is a dirty little quick hack, so don't ask, don't look, keep 
-  going.
+- It could work non-locally, too, but who would want to risk that?
+- This is a dirty little quick hack, so don't ask, don't look, just
+  pick one and keep going...
 
 (See CHANGES.txt for the development status.)
 
