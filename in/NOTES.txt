@@ -1,1 +1,5 @@
-http://stackoverflow.com/questions/7268033/basic-static-file-server-in-nodejs
+* Here's a minimal Win32 PHP 5.3 package in php/* for convenience.
+
+See:
+
+* http://stackoverflow.com/questions/7268033/basic-static-file-server-in-nodejs
