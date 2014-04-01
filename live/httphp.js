@@ -10,7 +10,7 @@ var SERVER_DOC_ROOT = "."
 var SERVER_INDEX_FILES = "index.html, index.php, README.txt, README.md, default.html, index.htm"
 // This is stupid, but noone will care for the time being. 
 // Vastly more stupid things are to be found here already. ;)
-var SERVER_LOG_FILTER = [/*'debug', 'notice'*/] // block some noise (debug, notice, warning, error)
+var SERVER_LOG_FILTER = ['debug'/*, 'notice'*/] // block some noise (debug, notice, warning, error)
 
 // URI -> dir ("alias") map. Will be set after processing the args!
 //!! (How this relates to the legacy SERVER_DOC_ROOT is not 100% clear yet. 
@@ -206,6 +206,7 @@ var server = Http.createServer(function(request, response) {
 	var file_to_serve_fullpath = ''
 	var file_ext = ''
 
+	log_debug("reqpath before decoding: " + reqpath)
 	reqpath = decodeURIComponent(reqpath.replace(/\+/g, ' ')) //https://groups.google.com/forum/#!topic/nodejs/8P7GZqBw0xg
 	file_to_serve = reqpath
 
@@ -217,7 +218,6 @@ var server = Http.createServer(function(request, response) {
 	log_debug("parsed_uri.path: " + parsed_uri.path)
 	log_debug("URI-path: " + parsed_uri.pathname)
 //	log_debug("URI-path + QS: " + parsed_uri.path) //! QS has been stripped off
-	log_debug("reqpath before decoding: " + reqpath)
 	log_debug("reqpath decoded: " + reqpath)
 	log_debug("file_to_serve: " + file_to_serve)
 
