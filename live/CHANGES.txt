@@ -18,6 +18,11 @@ TODO:
 DONE:
 =====
 
+2014-04-02 - v1.08
++ Added logic to HTTPHP.cmd for locating a PHP-CGI .exe to use (on Windows).
++ Added index.php to the live dir (index.html redirects to that index.php, 
+  which redirects to README.txt, basically as a "secret" PHP test at startup.)
+
 2014-04-02 - v1.07
 + Sigh, finally gave in and "officially" integrated the minimal Windows PHP 
   example crap lurking around the rest of the package from the beginning.
