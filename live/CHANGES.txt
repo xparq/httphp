@@ -18,6 +18,14 @@ TODO:
 DONE:
 =====
 
+2014-04-02 - v1.07
++ Sigh, finally gave in and "officially" integrated the minimal Windows PHP 
+  example crap lurking around the rest of the package from the beginning.
+  (Just to make it a self-containing survival kit for people not having a PHP 
+  installation yet. The dir layout is still pretty lame, it's just hanging 
+  in the air, making it slightly problematic for some people to "install", 
+  I guess. Well, I've got this gift of making enemies, what can I do?)
+
 2014-03-31 - v1.06
 + [php-multislash-internals]
   PHP internal ?=PHPxxx URIs used to fail with surplus slashes (like //index.php).

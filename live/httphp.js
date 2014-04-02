@@ -1,6 +1,6 @@
 // Product:
 var NAME = "HTTPHP"
-var VERSION = "1.06"
+var VERSION = "1.07"
 
 // Default server config:
 var SERVER_PROTOCOL = "http"
