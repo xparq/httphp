@@ -21,8 +21,7 @@ goto :EOF
 
 :launch_in_same_dir
 :: Add the PHP dir to the path, if there's a PHP-CGI.exe there...
-if exist "%PHPDIR%\php-cgi.exe" echo set PATH=%PHPDIR%;%PATH%
-goto :eof
+if exist "%PHPDIR%\php-cgi.exe" set PATH=%PHPDIR%;%PATH%
 :: Shotime!
 %~dp0node %~dp0httphp.js %1 %2 %3 %4 %5 %6 %7 %8 %9
 goto :EOF
