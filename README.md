@@ -5,5 +5,5 @@ the only one you need from this package.
 
 If you *don't* yet have a working PHP installation on the PATH 
 (on Windows), keep also the "php" dir. (And, if you put it to some 
-place other than the default, you may need to change `set PHPDIR=...`
+place other than the default, you'd need to change `set PHPDIR=...`
 in `live/httphp.cmd` accordingly.)
