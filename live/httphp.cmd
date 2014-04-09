@@ -45,7 +45,7 @@ set PHPDIR=%~dp0..\php
 goto use_php
 
 :php_done_none
-echo HTTPHP: Running with no PHP support (no PHP-CGI.EXE on the PATH)!
+echo HTTPHP.cmd: Warning: Running with no PHP support (no PHP-CGI.EXE on the PATH)!
 
 :php_done
 :: Showtime!

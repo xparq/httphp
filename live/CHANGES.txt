@@ -5,6 +5,9 @@ TODO:
 ! [add-alias-dir] -a for "add alias dir" (with regexp support, later)
     Also add the corresponding "ctrl:" command (generalize out the "control commander",
     like apachectl!)
+    ! General form: '[-a[ ["]dirname[=urlrootpath["]]]]'
+    ! Multiple -a options supported.
+    ! '-a' alone means '-a .=`dirname(realpath(.))`'
 ! File-type handlers (move PHP to php-handler, add js etc.).
 ! Check cookies & PHP sessions.
 ! Better 'CTRL:' request handling: add some security token?
@@ -18,12 +21,19 @@ TODO:
 DONE:
 =====
 
-2014-04-02 - v1.08
+2014-04-9 - 1.09
++ "No PHP support" is logged too early, before the "Server started" line. 
+  (In fact the server started message is too late!)
+  -> Uhh-ohh, that's because missing PHP support is detected in the startup 
+   shell script (on Windows), not by the server itself!...
+   * Changed "HTTPHP" prefix to "HTTPHP.cmd".
+
+2014-04-02 - 1.08
 + Added logic to HTTPHP.cmd for locating a PHP-CGI .exe to use (on Windows).
 + Added index.php to the live dir (index.html redirects to that index.php, 
   which redirects to README.txt, basically as a "secret" PHP test at startup.)
 
-2014-04-02 - v1.07
+2014-04-02 - 1.07
 + Sigh, finally gave in and "officially" integrated the minimal Windows PHP 
   example crap lurking around the rest of the package from the beginning.
   (Just to make it a self-containing survival kit for people not having a PHP 
@@ -31,7 +41,7 @@ DONE:
   in the air, making it slightly problematic for some people to "install", 
   I guess. Well, I've got this gift of making enemies, what can I do?)
 
-2014-03-31 - v1.06
+2014-03-31 - 1.06
 + [php-multislash-internals]
   PHP internal ?=PHPxxx URIs used to fail with surplus slashes (like //index.php).
   See also [url.parse-crash].
@@ -61,16 +71,16 @@ DONE:
 + Docs. updated preparing for [add-alias-dir].
 + Minor code improvements.
 
-2014-03-15 - v1.05 [Incorrect version tag on GitHub!]
+2014-03-15 - 1.05 [Incorrect version tag on GitHub!]
 + FIX handling urlencoded URLs (i.e. filenames with spaces). 
   (There was no decoding at all).
 + FIX log_debug was silent despite not filtering.
 + Added log filtering for notices and warnings, too.
 
-2014-03-11 - v1.04
+2014-03-11 - 1.04
 + Remove DEBUG messages from the log by default.
 
-2014-03-11 - v1.03
+2014-03-11 - 1.03
 + Extended the index file lookup list (notably with README.md and README.txt).
 + [cgi-ok-error] Handle error "OK" in cgi exec... 
   Yes, that "error" did happen on me, causing this exception:
@@ -87,13 +97,13 @@ DONE:
 	    at ChildProcess.EventEmitter.emit (events.js:95:17)
 	    at Process.ChildProcess._handle.onexit (child_process.js:795:12)
 
-2014-03-11 - v1.02
+2014-03-11 - 1.02
 + Index lookup log changed to DEBUG.
 + Slightly refined startup logging.
 + Report version and location of the server in the startup message.
 + Added (and using) log*() functions (with a raw timestamp).
 
-2014-03-11 - v1.01
+2014-03-11 - 1.01
 + Added proper MIME types for the most common file types (suffixes).
 + Moved the in-source change history here. (Some TODOs still left there.)
 
@@ -102,7 +112,7 @@ DONE:
 + Added 500 error response body messages.
 + Removed "testweb" from under the "live" dir (and added to .gitignore).
 
-2014-03-08 - v1
+2014-03-08 - 1.0
 + Changed the startup scripts and the docs.
 + Restructured for better instant deployment (The "live" dir is now "officially"
   the deliverable package.)
@@ -116,7 +126,7 @@ DONE:
 2014-02-05
 + Minor changes to some error logs.
 
-2014-02-05 - v0.3
+2014-02-05 - 0.3
 + Rudimentary "reconfiguration" (basically port-reclaiming) protocol added, via 
   a "?ctrl:stop!" query string.
   If a new server (NEW) is launched but it detects another instance (OLD) already 
