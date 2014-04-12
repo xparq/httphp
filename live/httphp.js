@@ -1,24 +1,27 @@
 // Product:
 var NAME = "HTTPHP"
-var VERSION = "1.12"
+var VERSION = "1.13"
 
-// Default server config:
-var SERVER_PROTOCOL = "http"
-var SERVER_PORT = 80
-var SERVER_HOST = "127.0.0.1"
-var SERVER_DOC_ROOT = "."
-var SERVER_INDEX_FILES = "index.html, index.php, README.txt, README.md, default.html, index.htm"
-// This is stupid, but noone will care for the time being. 
-// Vastly more stupid things are to be found here already. ;)
-var SERVER_LOG_FILTER = ['debug'/*, 'notice'*/] // block some noise (debug, notice, warning, error)
+// Default server config
+var SERVER_CFG = {
+	"PROTOCOL":	"http",
+	"PORT":		80,
+	"HOST":		"127.0.0.1",
+	"DOC_ROOT":	".",
+	"INDEXES":	"index.html, index.php, README.txt, README.md, default.html, index.htm",
+	"ON_404_TRY_INDEX":	false, // or a specific filename, like 'index.php', to override 'INDEXES'
+	// This is kinda' stupid for others than 'debug', but noone will care for the time being, right?
+	// (Espec. as vastly more stupid things are to be found here anyway...)
+	"LOG_FILTER":	['debug',/*'notice'*/], // block some noise (debug, notice, warning, error)
+}
 
 // URI -> dir ("alias") map. Will be set after processing the args!
-//!! (How this relates to the legacy SERVER_DOC_ROOT is not 100% clear yet. 
-//!! For now '/' -> SERVER_DOC_ROOT is the only default alias map entry, and
-//!! SERVER_DOC_ROOT is, unfortunately, also used directly at several places
+//!! (How this relates to the legacy SERVER_CFG.DOC_ROOT is not 100% clear yet. 
+//!! For now '/' -> SERVER_CFG.DOC_ROOT is the only default alias map entry, and
+//!! SERVER_CFG.DOC_ROOT is, unfortunately, also used directly at several places
 //!! "the" (only) legacy docroot value.)
 var dirmap = {
-	'/': SERVER_DOC_ROOT,
+	'/': SERVER_CFG.DOC_ROOT,
 }
 
 // Stealing from: http://trac.nginx.org/nginx/browser/nginx/conf/mime.types
@@ -69,15 +72,15 @@ function log_err(msg) {
 	log("ERROR: "+ msg)
 }
 function log_warn(msg) {
-	if (SERVER_LOG_FILTER.indexOf('warn') == -1)
+	if (SERVER_CFG.LOG_FILTER.indexOf('warn') == -1)
 		log("WARNING: "+ msg)
 }
 function log_notice(msg) {
-	if (SERVER_LOG_FILTER.indexOf('notice') == -1)
+	if (SERVER_CFG.LOG_FILTER.indexOf('notice') == -1)
 		log("notice: "+ msg)
 }
 function log_debug(msg) {
-	if (SERVER_LOG_FILTER.indexOf('debug') == -1)
+	if (SERVER_CFG.LOG_FILTER.indexOf('debug') == -1)
 		log(">> DEBUG <<: "+ msg)
 }
 
@@ -116,18 +119,18 @@ process.argv.forEach(function (arg, i, array) {
 
 	switch (param_of) {
 	case '-p':
-		SERVER_PORT = arg
-		log_notice("SERVER_PORT set to '" + SERVER_PORT + "'")
+		SERVER_CFG.PORT = arg
+		log_notice("SERVER.PORT set to '" + SERVER_CFG.PORT + "'")
 		param_of = null
 		break
 	case '-d':
-		SERVER_DOC_ROOT = arg
-		log_notice("SERVER_DOC_ROOT set to '" + SERVER_DOC_ROOT + "'")
+		SERVER_CFG.DOC_ROOT = arg
+		log_notice("SERVER.DOC_ROOT set to '" + SERVER_CFG.DOC_ROOT + "'")
 		param_of = null
 		break
 	case '-i':
-		SERVER_INDEX_FILES = arg
-		log_notice("SERVER_INDEX_FILES set to '" + SERVER_INDEX_FILES + "'")
+		SERVER_CFG.INDEXES = arg
+		log_notice("SERVER.INDEXES set to '" + SERVER_CFG.INDEXES + "'")
 		param_of = null
 		break
 	}			
@@ -139,7 +142,7 @@ if (param_of) {
 
 // Set this for the request handler
 //! NOTE: THESE CAN'T BE RECONFIGURED RUN-TIME, so enough to set it once.
-SERVER_URL_PREFIX = SERVER_PROTOCOL + "://" + SERVER_HOST + ":" + SERVER_PORT
+SERVER_URL_PREFIX = SERVER_CFG.PROTOCOL + "://" + SERVER_CFG.HOST + ":" + SERVER_CFG.PORT
 
 
 function respond_404(request, response, reqpath, file_to_serve_fullpath) {
@@ -181,6 +184,14 @@ function get_root_dir_for_uri_path(uri_path) {
 		return dirmap[uri_prefix]
 	else
 		return dirmap['/']
+}
+*/
+
+/*
+function get_index(request, response, reqpath, file_to_serve_fullpath) {
+
+	log_debug("Falling back to dir. index on missing direct match...")
+	return false
 }
 */
 
@@ -240,33 +251,51 @@ var server = Http.createServer(function(request, response) {
 	//
 	// Locate the resource (generally a file) to serve...
 	//
-	file_to_serve_fullpath = SERVER_DOC_ROOT + file_to_serve
+	file_to_serve_fullpath = SERVER_CFG.DOC_ROOT + file_to_serve
 	log_debug('file_to_serve_fullpath: ' + file_to_serve_fullpath)
 
+	var file_state = null
 	try {
-		stats = Fs.statSync(file_to_serve_fullpath)//!!, function(err, stats) {
+		file_state = Fs.statSync(file_to_serve_fullpath)//!!, function(err, stats) {
 	} catch(err) {
 		if (err.code == 'ENOENT') {
 			//!! The URL may map to an existing file, but that's not necessarily an error!
 			//!! BUT NOW, FOR DEBUGGING:
-			respond_404(request, response, reqpath, file_to_serve_fullpath)
+			if (!SERVER_CFG.ON_404_TRY_INDEX) {
+				respond_404(request, response, reqpath, file_to_serve_fullpath)
+				return
+			}
+			
+			log_notice("Falling back to dir. index on 404 (as configured)...")
+			// Fall through to index handling!
+			// Also: hack the index file list, if 'ON_404_TRY_INDEX' is itself a file name:
+			if (typeof(SERVER_CFG.ON_404_TRY_INDEX) === 'string') {
+				SERVER_CFG.INDEXES = SERVER_CFG.ON_404_TRY_INDEX + ',' + SERVER_CFG.INDEXES
+			}
+			
 		} else {
 			response.writeHeader(500, {"Content-Type": "text/plain"})
 			response.write(err + "\n")
-			response.end()
 			log_http(request, reqpath, file_to_serve_fullpath, 500, "File stat() failed")
+			response.end()
+			return
 		}
-		return;
 	}
 
 	// Check if the request points to an existing dir, and
 	// then append an index file if one exists in that dir.
 	// If not, bail out with 404.
-	if (stats.isDirectory()) {
+	if (file_state && file_state.isDirectory() || !file_state && SERVER_CFG.ON_404_TRY_INDEX) { //!NOTE: file_state is null if not found
+
 		var INDIRECT_INDEX = null
-		SERVER_INDEX_FILES.split(",").some(function(index) {
+
+		if (SERVER_CFG.ON_404_TRY_INDEX) {
+			reqpath = Path.dirname(reqpath)
+		}
+
+		SERVER_CFG.INDEXES.split(",").some(function(index) {
 			file_to_serve          = Path.join(reqpath, index.trim())
-			file_to_serve_fullpath = Path.join(SERVER_DOC_ROOT, file_to_serve)
+			file_to_serve_fullpath = Path.join(SERVER_CFG.DOC_ROOT, file_to_serve)
 			if (Fs.existsSync(file_to_serve_fullpath)) {
 				INDIRECT_INDEX = file_to_serve_fullpath
 				log_debug("using index file: '" + file_to_serve_fullpath +"'")
@@ -275,6 +304,7 @@ var server = Http.createServer(function(request, response) {
 				log_debug("index file not found: '" + file_to_serve_fullpath +"'")
 			}
 		})
+
 		if (!INDIRECT_INDEX) {
 			log_err("no directory index found")
 			respond_404(request, response, reqpath, file_to_serve_fullpath)
@@ -284,8 +314,8 @@ var server = Http.createServer(function(request, response) {
 
 	log_debug("file_to_serve: " + file_to_serve)
 
-	// NOTE: stats.isSymbolicLink() transparently handled by stat()
-	if (stats.isFile() || INDIRECT_INDEX) {
+	// NOTE: file_state.isSymbolicLink() transparently handled by stat()
+	if (INDIRECT_INDEX || file_state.isFile()) { //!NOTE: file_state may be null
 
 		// Based on the php-cgi README:
 		// Just use 'path' instead of Url.parse(request.url, true)
@@ -297,8 +327,8 @@ var server = Http.createServer(function(request, response) {
 
 			case ".php":
 				    phpCGI.env['REQUEST_URI'] = request.url; // PHP-specific
-				    phpCGI.env['DOCUMENT_ROOT'] = SERVER_DOC_ROOT + Path.sep;
-				    phpCGI.env['SERVER_PORT'] = SERVER_PORT;
+				    phpCGI.env['DOCUMENT_ROOT'] = SERVER_CFG.DOC_ROOT + Path.sep;
+				    phpCGI.env['SERVER_PORT'] = SERVER_CFG.PORT;
 				    phpCGI.env['SERVER_NAME'] = request.headers.host;
 
 				    phpCGI.process(file_to_serve, request, response, function(statuscode, errmsg) {
@@ -324,7 +354,7 @@ var server = Http.createServer(function(request, response) {
 						log_http(request, reqpath, file_to_serve_fullpath, 200, "OK")
 
 					} else if (err.code == 'ENOENT') {
-
+						log_debug("Should this 404 ever occur here?!") //!!?
 						respond_404(request, response, reqpath, file_to_serve_fullpath)
 
 					} else {
@@ -338,7 +368,7 @@ var server = Http.createServer(function(request, response) {
 		}
 
         } else {
-//log_debug("404: " + request.url)
+		log_debug("Should this other 404 ever occur here?!") //!!?
 		respond_404(request, response, reqpath, file_to_serve_fullpath)
 	}
 
@@ -366,10 +396,10 @@ var kill_request_sent = false
 
 server.on('error',function(e){
 	if (e.code == 'EADDRINUSE') {
-		log_warn("Port "+ SERVER_PORT +" is already used. Trying to take over...");
+		log_warn("Port "+ SERVER_CFG.PORT +" is already used. Trying to take over...");
 
 		//http://nodejs.org/api/http.html#http_http_get_options_callback
-		Http.get("http://"+SERVER_HOST+":"+SERVER_PORT+"/?ctrl:stop!", function(res) {
+		Http.get("http://"+SERVER_CFG.HOST+":"+SERVER_CFG.PORT+"/?ctrl:stop!", function(res) {
 			log_notice("Response to the STOP req.: " + res.statusCode);
 		}).on('error', function(e) {
 			// Connection reset is expected if we kill the server ;)
@@ -380,7 +410,7 @@ server.on('error',function(e){
 
 		setTimeout(function () {
 			// Let's retry, regardless of the response:
-			server.listen(SERVER_PORT, SERVER_HOST)
+			server.listen(SERVER_CFG.PORT, SERVER_CFG.HOST)
 			// Wait for it to probably finish:
 			setTimeout(function () {
 				if (!server_listening_ok) {
@@ -390,7 +420,7 @@ server.on('error',function(e){
 			}, 500);
 		}, 2000);
 	} else if (e.code == 'EACCES') {
-		log_err("No permission to bind to port " + SERVER_PORT + ".");
+		log_err("No permission to bind to port " + SERVER_CFG.PORT + ".");
 	} else {
 		log_err("Unknown fatal error: " + e.code + ".");
 	}
@@ -398,12 +428,12 @@ server.on('error',function(e){
 
 server.on('listening',function(){
 	server_listening_ok = true
-	log("Listening on http://"+ SERVER_HOST + ":" + SERVER_PORT 
-		+ "/ (serving "+ Path.resolve(SERVER_DOC_ROOT) +").")
+	log("Listening on http://"+ SERVER_CFG.HOST + ":" + SERVER_CFG.PORT 
+		+ "/ (serving "+ Path.resolve(SERVER_CFG.DOC_ROOT) +").")
 
 	//Just for myself: what exactly these other ways of printing are/were?
-	//Util.puts("Server Running on port " + SERVER_PORT);
+	//Util.puts("Server Running on port " + SERVER_CFG.PORT);
 	// Sys.puts("Sys.puts vs. Util.puts vs. console.log?...");  
 })
 
-server.listen(SERVER_PORT, SERVER_HOST)
+server.listen(SERVER_CFG.PORT, SERVER_CFG.HOST)

@@ -26,6 +26,10 @@ TODO:
 
 DONE:
 =====
+2014-04-13 - 1.13
++ Moved SERVER_XXX props into SERVER_CFG.XXX.
++ Added SERVER_CFG.ON_404_TRY_INDEX = true/false/"filename"
+
 2014-04-12 - 1.12
 + Replace PHP5ts.dll with a vanilla PHP5.dll (currently 5.4.26).
 + Improved the docs.
