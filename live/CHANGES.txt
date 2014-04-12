@@ -20,6 +20,10 @@ TODO:
 
 DONE:
 =====
+2014-04-12 - 1.10
++ Some files dos2unixed.
++ Fix: Silent exit on bind EACCES (e.g. trying to bind to a port under 1000
+  on Linux). Also add catch-all error reporting for unknown cases.
 
 2014-04-9 - 1.09
 + "No PHP support" is logged too early, before the "Server started" line. 

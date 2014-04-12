@@ -1,6 +1,6 @@
 // Product:
 var NAME = "HTTPHP"
-var VERSION = "1.09"
+var VERSION = "1.10"
 
 // Default server config:
 var SERVER_PROTOCOL = "http"
@@ -374,6 +374,10 @@ server.on('error',function(e){
 				}
 			}, 500);
 		}, 2000);
+	} else if (e.code == 'EACCES') {
+		log_err("No permission to bind to port " + SERVER_PORT + ".");
+	} else {
+		log_err("Unknown fatal error: " + e.code + ".");
 	}
 })
 
