@@ -1,8 +1,12 @@
 ---------------------------------
-* Why not just using PHP5's new built-in server?
+* Why not just using the built-in server of PHP5.4+?
 
 I'd love to, but stopping and restarting it every time I want to serve 
-some other dir is a nuisance.
+some other dir is a nuisance. 
+
+(E.g. when I last tried, it just silently prenteded to work fine in the 
+presence of an already running instance on the same port, which actually
+took precedence and handled all the requests.)
 
 
 ---------------------------------

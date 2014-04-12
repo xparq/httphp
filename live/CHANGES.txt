@@ -25,6 +25,9 @@ TODO:
 
 DONE:
 =====
+2014-04-12 - 1.12
++ Replace PHP5ts.dll with the vanilla PHP5.dll (currently 5.4.26).
+
 2014-04-12 - 1.11
 + Log graceful shutdown (exit(), SIGINT, SIGTERM etc.).
 
