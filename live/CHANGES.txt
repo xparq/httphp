@@ -2,6 +2,11 @@ TODO:
 =====
 [REMEMBER TO UPDATE 'VERSION' IN THE SOURCE, TOO!]
 
+! Fix: "owered-By: PHP/5.5.11-2tent-type: text/htmlript> location="README.txt" </script>"
+  on Linux. Just running in this live dir, and opening http://localhost:88.
+  -> ONLY OCCURED ONCE, after freshly apt-updating php-cgi & nodejs, and the
+    first php-cgi invokation from httphp since the last Debian reboot.
+
 ! [add-alias-dir] -a for "add alias dir" (with regexp support, later)
     Also add the corresponding "ctrl:" command (generalize out the "control commander",
     like apachectl!)
@@ -20,6 +25,9 @@ TODO:
 
 DONE:
 =====
+2014-04-12 - 1.11
++ Log graceful shutdown (exit(), SIGINT, SIGTERM etc.).
+
 2014-04-12 - 1.10
 + Some files dos2unixed.
 + Fix: Silent exit on bind EACCES (e.g. trying to bind to a port under 1000

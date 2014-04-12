@@ -1,6 +1,6 @@
 // Product:
 var NAME = "HTTPHP"
-var VERSION = "1.10"
+var VERSION = "1.11"
 
 // Default server config:
 var SERVER_PROTOCOL = "http"
@@ -343,6 +343,21 @@ var server = Http.createServer(function(request, response) {
 	}
 
 //!!    })
+})
+
+
+process.on('exit', function() {
+  log("Shutting down gracefully. Thanks, bye!");
+})
+
+process.on('SIGINT', function() {
+  log_notice("Exiting on SIGINT (Ctrl+C)...");
+  process.exit();
+})
+
+process.on('SIGTERM', function() {
+  log_notice("Exiting on SIGTERM (kill -15)...");
+  process.exit();
 })
 
 
