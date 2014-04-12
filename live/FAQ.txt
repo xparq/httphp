@@ -1,12 +1,18 @@
 ---------------------------------
 * Why not just using the built-in server of PHP5.4+?
 
-I'd love to, but stopping and restarting it every time I want to serve 
-some other dir is a nuisance. 
+Good point, and I generally would. But... Two reasons:
 
-(E.g. when I last tried, it just silently prenteded to work fine in the 
-presence of an already running instance on the same port, which actually
-took precedence and handled all the requests.)
+1. Stopping and restarting it every time I want to serve an other dir 
+is a nuisance. 
+(Last time I tried, it even silently prenteded to work fine in the presence 
+of an already running instance on the same port, which actually took 
+precedence and handled all the requests.)
+
+2. Extendability, hackability: In addition to general open-endedness, 
+I also have vague plans for integrating other backends, in addition to PHP 
+(like, not so surprisingly, Node.js "tunneling", via e.g. .njs files, or
+perhaps even something RoR-ish).
 
 
 ---------------------------------
