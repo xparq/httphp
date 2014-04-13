@@ -278,7 +278,8 @@ var server = Http.createServer(function(request, response) {
 
 		var INDIRECT_INDEX = null
 
-		if (SERVER_CFG.ON_404_TRY_INDEX) {
+		//! Don't chop it if it's a real dir request!
+		if (!file_state && SERVER_CFG.ON_404_TRY_INDEX) {
 			reqpath = Path.dirname(reqpath)
 		}
 
