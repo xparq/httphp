@@ -2,18 +2,7 @@
 var NAME = "HTTPHP"
 var VERSION = "1.13"
 
-// Default server config
-var SERVER_CFG = {
-	"PROTOCOL":	"http",
-	"PORT":		80,
-	"HOST":		"127.0.0.1",
-	"DOC_ROOT":	".",
-	"INDEXES":	"index.html, index.php, README.txt, README.md, default.html, index.htm",
-	"ON_404_TRY_INDEX":	false, // or a specific filename, like 'index.php', to override 'INDEXES'
-	// This is kinda' stupid for others than 'debug', but noone will care for the time being, right?
-	// (Espec. as vastly more stupid things are to be found here anyway...)
-	"LOG_FILTER":	['debug',/*'notice'*/], // block some noise (debug, notice, warning, error)
-}
+var SERVER_CFG = require('./default.cfg')
 
 // URI -> dir ("alias") map. Will be set after processing the args!
 //!! (How this relates to the legacy SERVER_CFG.DOC_ROOT is not 100% clear yet. 

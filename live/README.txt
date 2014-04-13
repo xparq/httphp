@@ -25,6 +25,7 @@ The deal:
   HTTPHP instance will stop the old one first. (No need to bother 
   killing the running server manually.)
 - Or, it can also add another web dir (with -a).
+- "Poor man's SEF URLs": optionally redirect 404 errors to dir index.
 - [!!TODO] Conveninent semi-automatic run-time reconfiguration. E.g., 
   it can add a new dir to the ones already being served (with the
   default URL path being the dirname, making it unique as needed).

@@ -27,6 +27,7 @@ TODO:
 DONE:
 =====
 2014-04-13 - 1.13
++ Moved cfg. to separate file (default.cfg).
 + Moved SERVER_XXX props into SERVER_CFG.XXX.
 + Added SERVER_CFG.ON_404_TRY_INDEX = true/false/"filename"
 
