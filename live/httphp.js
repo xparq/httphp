@@ -1,6 +1,6 @@
 // Product:
 var NAME = "HTTPHP"
-var VERSION = "1.13"
+var VERSION = "1.14"
 
 var SERVER_CFG = require('./default.cfg')
 
@@ -205,6 +205,8 @@ var server = Http.createServer(function(request, response) {
 	var file_to_serve = ''
 	var file_to_serve_fullpath = ''
 	var file_ext = ''
+
+	log_notice("Request for '" + request.url + "' received.")
 
 	log_debug("reqpath before decoding: " + reqpath)
 	reqpath = decodeURIComponent(reqpath.replace(/\+/g, ' ')) //https://groups.google.com/forum/#!topic/nodejs/8P7GZqBw0xg

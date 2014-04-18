@@ -26,6 +26,9 @@ TODO:
 
 DONE:
 =====
+2014-04-18 - 1.14
++ Log the original request URI before talking about file lookup and mappings!
+
 2014-04-13 - 1.13
 + Moved cfg. to separate file (default.cfg).
 + Moved SERVER_XXX props into SERVER_CFG.XXX.
