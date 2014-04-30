@@ -1,6 +1,6 @@
 // Product:
 var NAME = "HTTPHP"
-var VERSION = "1.14"
+var VERSION = "1.14+"
 
 var SERVER_CFG = require('./default.cfg')
 
