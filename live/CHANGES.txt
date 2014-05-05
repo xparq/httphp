@@ -2,6 +2,25 @@ TODO:
 =====
 [REMEMBER TO UPDATE 'VERSION' IN THE SOURCE, TOO!]
 
+! FIX [header-resend]
+PHP Strict Standards:  Only variables should be assigned by reference in /mnt/local/SZABIREPO/tmp/fotok/Pecsvarad/ilyen volt - 2010-apr [from neuro online]/index.php on line 1884
+[1399128991241] Shutting down gracefully. Thanks, bye!
+http.js:691
+    throw new Error('Can\'t set headers after they are sent.');
+          ^
+Error: Can't set headers after they are sent.
+    at ServerResponse.OutgoingMessage.setHeader (http.js:691:11)
+    at Socket.<anonymous> (/mnt/local/WORKAREA/prj/webdev/server/httphp/live/lib/php-cgi-sz.js:197:11)
+    at Socket.EventEmitter.emit (events.js:95:17)
+    at Socket.<anonymous> (_stream_readable.js:746:14)
+    at Socket.EventEmitter.emit (events.js:92:17)
+    at emitReadable_ (_stream_readable.js:408:10)
+    at emitReadable (_stream_readable.js:404:5)
+    at readableAddChunk (_stream_readable.js:165:9)
+    at Socket.Readable.push (_stream_readable.js:127:10)
+    at Pipe.onread (net.js:528:21)
+root@lenovo:/mnt/local/SZABIREPO/tmp/fotok/Pecsvarad/ilyen volt - 2010-apr [from neuro online]# 
+
 ! Add option to ignore the pre-packaged node.exe for those who have their own.
 ! Fix: "owered-By: PHP/5.5.11-2tent-type: text/htmlript> location="README.txt" </script>"
   on Linux. Just running in this live dir, and opening http://localhost:88.
