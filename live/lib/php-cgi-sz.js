@@ -3,6 +3,10 @@ Based on php-cgi 0.2.0
 See also: CGI RFC: http://tools.ietf.org/html
 
 Changes by Sz.:
+
+! See the Git commit log for all the recent changes. 
+  Some old ones:
+
 + Disabled bogus detectBinary().
 + Added error (ENOENT) handling for spawn().
 + Disabled bogus PATH_INFO and PATH_TRANSLATED.
@@ -137,11 +141,11 @@ var Exports = {
 		if (typeof(end_callback) == "object") { params = end_callback; end_callback = null; }
 		if (typeof(params) == "undefined") params = {};
 		var reqEnv = Exports.prepareCGIEnv(scriptfile, req);
-		cgi = spawn(Exports.bin, [], {
+		var cgi = spawn(Exports.bin, [], {
 			  env: reqEnv,
 			  stdio: 'pipe'
 		});
-
+		var http_status = { code: 200, text: "OK" }; // might be overridden from PHP
 		var error_msg  = "CGI error"
 
 		// spawn() would pass errors here:
@@ -190,18 +194,27 @@ var Exports = {
 //console.log("*** CGI headers found, ending at: " + headers_end);
 //console.log(data.toString("utf-8", 0, headers_end));
 					var lines = data.toString("utf-8", 0, headers_end).split("\r\n");
-					//set headers until you get a blank line...
+					// Set the headers...
 					for (var l=0; l<lines.length; l++) {
-						//set header
-						var header = lines[l].split(":");
-						res.setHeader(header[0], header[1] || '');
+						var hdrname, hdrvalue, hdrname_end = lines[l].indexOf(":");
+						if ((hdrname_end > 0) 
+							&& (hdrname = lines[l].substring(0, hdrname_end).trim()) )
+						{
+							hdrvalue = lines[l].substr(hdrname_end+1).trim() //! hdrname_end+1
+							res.setHeader(hdrname, hdrvalue);
+							// Is it set by the CGI app?
+							if (hdrname == "Status") {
+								http_status.code = parseInt(hdrvalue);
+								http_status.text = null; //!! just force default phrase for now
+							}
+						}
 					}
 
 					if (!res.getHeader("content-length")) {
 					//stream the output
 						res.setHeader('Transfer-Encoding', 'chunked');
 					}
-					res.writeHead(200);
+					res.writeHead(http_status.code, http_status.text);
 					headersSent = true;
 				}
 //				if ((type = res.getHeader("content-type")) && 
@@ -213,11 +226,11 @@ var Exports = {
 			}
 		});
 		cgi.stdout.on('end',function() { 
-			if (typeof(end_callback) == "function")
-				//!! not always 200 here?
-				end_callback(200, "OK") // this must close the response stream!
-			else
+			if (typeof(end_callback) == "function") {
+				end_callback(http_status.code, http_status.text) //! the callback must close the response stream
+			} else {
 				res.end()
+			}
 		});
 	}
 }

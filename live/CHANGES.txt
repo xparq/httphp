@@ -2,6 +2,8 @@ TODO:
 =====
 [REMEMBER TO UPDATE 'VERSION' IN THE SOURCE, TOO!]
 
+! Pass on HTTP Basic Auth credentials to CGI if received from the client.
+
 ! FIX [header-resend]
 PHP Strict Standards:  Only variables should be assigned by reference in xxx.php on line xxx
 [1399128991241] Shutting down gracefully. Thanks, bye!
@@ -20,6 +22,9 @@ Error: Can't set headers after they are sent.
     at Socket.Readable.push (_stream_readable.js:127:10)
     at Pipe.onread (net.js:528:21)
 root@lenovo:/mnt/local/SZABIREPO/tmp/fotok/Pecsvarad/ilyen volt - 2010-apr [from neuro online]# 
+
+! Use the HTTP status phrase set by CGI, instead of ignoring it and using
+  the Node.js defaults.
 
 ! Add option to ignore the pre-packaged node.exe for those who have their own.
 ! Fix: "owered-By: PHP/5.5.11-2tent-type: text/htmlript> location="README.txt" </script>"
@@ -45,10 +50,12 @@ root@lenovo:/mnt/local/SZABIREPO/tmp/fotok/Pecsvarad/ilyen volt - 2010-apr [from
 
 DONE:
 =====
-2014-05-27
+2014-05-27 - 1.15
 + Change cfg. option INDEXES to INDEX. (Basically to make ON_404_TRY_INDEX 
   more intuitive, at the expense of INDEX becoming less so a bit - but that'd 
   need less explanation, too.)
++ Fix broken HTTP header processing from the CGI stream.
++ Fix broken HTTP response codes set by the CGI program.
 
 2014-04-30
 + Fix httphp.sh to find itself also via symlinked paths.
