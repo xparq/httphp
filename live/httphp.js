@@ -118,8 +118,8 @@ process.argv.forEach(function (arg, i, array) {
 		param_of = null
 		break
 	case '-i':
-		SERVER_CFG.INDEXES = arg
-		log_notice("SERVER.INDEXES set to '" + SERVER_CFG.INDEXES + "'")
+		SERVER_CFG.INDEX = arg
+		log_notice("SERVER.INDEX set to '" + SERVER_CFG.INDEX + "'")
 		param_of = null
 		break
 	}			
@@ -261,7 +261,7 @@ var server = Http.createServer(function(request, response) {
 			// Fall through to index handling!
 			// Also: hack the index file list, if 'ON_404_TRY_INDEX' is itself a file name:
 			if (typeof(SERVER_CFG.ON_404_TRY_INDEX) === 'string') {
-				SERVER_CFG.INDEXES = SERVER_CFG.ON_404_TRY_INDEX + ',' + SERVER_CFG.INDEXES
+				SERVER_CFG.INDEX = SERVER_CFG.ON_404_TRY_INDEX + ',' + SERVER_CFG.INDEX
 			}
 			
 		} else {
@@ -285,7 +285,7 @@ var server = Http.createServer(function(request, response) {
 			reqpath = Path.dirname(reqpath)
 		}
 
-		SERVER_CFG.INDEXES.split(",").some(function(index) {
+		SERVER_CFG.INDEX.split(",").some(function(index) {
 			file_to_serve          = Path.join(reqpath, index.trim())
 			file_to_serve_fullpath = Path.join(SERVER_CFG.DOC_ROOT, file_to_serve)
 			if (Fs.existsSync(file_to_serve_fullpath)) {
