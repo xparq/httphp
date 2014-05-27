@@ -3,7 +3,7 @@ TODO:
 [REMEMBER TO UPDATE 'VERSION' IN THE SOURCE, TOO!]
 
 ! FIX [header-resend]
-PHP Strict Standards:  Only variables should be assigned by reference in /mnt/local/SZABIREPO/tmp/fotok/Pecsvarad/ilyen volt - 2010-apr [from neuro online]/index.php on line 1884
+PHP Strict Standards:  Only variables should be assigned by reference in xxx.php on line xxx
 [1399128991241] Shutting down gracefully. Thanks, bye!
 http.js:691
     throw new Error('Can\'t set headers after they are sent.');
@@ -45,6 +45,11 @@ root@lenovo:/mnt/local/SZABIREPO/tmp/fotok/Pecsvarad/ilyen volt - 2010-apr [from
 
 DONE:
 =====
+2014-05-27
++ Change cfg. option INDEXES to INDEX. (Basically to make ON_404_TRY_INDEX 
+  more intuitive, at the expense of INDEX becoming less so a bit - but that'd 
+  need less explanation, too.)
+
 2014-04-30
 + Fix httphp.sh to find itself also via symlinked paths.
 
