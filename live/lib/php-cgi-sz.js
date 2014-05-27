@@ -119,23 +119,31 @@ var Exports = {
 		if ('authorization' in req.headers) {
 			reqEnv['AUTH_TYPE'] = req.headers.authorization.split(' ')[0];
 		}
+/* This would be needed later for "mod-php" mode, if basic auth support gets built in:
+
+		// Turn "Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==" to PHP_AUTH_USER, PHP_AUTH_PW
+		// (http://en.wikipedia.org/wiki/Basic_access_authentication, http://www.php.net/manual/en/features.http-auth.php)
+		if (req.headers.authorization) {
+//! Already added:	reqEnv['HTTP_AUTHORIZATION'] = req.headers.authorization;
+			var parts = req.headers.authorization.split(" ");
+			if (parts[0] != "Basic") {
+//!!				log_warning("Unsupported authentication method: '"+parts[0]+"'")
+			} else {
+				reqEnv['AUTH_TYPE'] = parts[0];
+				parts = new Buffer(parts[1], 'base64').toString('ascii');
+				parts = parts.split(":");
+				reqEnv['PHP_AUTH_USER'] = parts[0];
+				reqEnv['PHP_AUTH_PW']   = parts[1];
+				console.log('PHP_AUTH_USER = "' + parts[0] + '"');
+				console.log('PHP_AUTH_PW = "' + parts[1] + '"');
+			}
+		}
+*/
 		return reqEnv;
 	},
-	/*
-	//on windows get a portable php to run.
-	detectBinary: function() {
-		//sz: WARNING!
-		// Calling this on Win32 would force-load the 'php-bin-win32' Node.js
-		// package on Win32, REGARDLESS OF IT BEING INSTALLED AT ALL OR NOT!
-		// (I.e. it will cause an error if not installed.)
-		if (process.platform == 'win32') {
-			//detect a local "portable" php install.
-			Exports.bin = require("php-bin-win32").bin;
-		}
-	},
-	*/
-	/** sz: WHAT DOES THIS COMMENT MEAN, AND IS IT RELATED TO detectBinary() OR process()?
-	* This is an automatic function, will add a function you can override later on.
+
+	/** sz: WHAT DOES THIS COMMENT MEAN?
+	* "This is an automatic function, will add a function you can override later on."
 	*/
 	process: function(scriptfile, req, res, end_callback, params) {
 		if (typeof(end_callback) == "object") { params = end_callback; end_callback = null; }
@@ -202,7 +210,7 @@ var Exports = {
 						{
 							hdrvalue = lines[l].substr(hdrname_end+1).trim() //! hdrname_end+1
 							res.setHeader(hdrname, hdrvalue);
-							// Is it set by the CGI app?
+							// Is the status set by the CGI app?
 							if (hdrname == "Status") {
 								http_status.code = parseInt(hdrvalue);
 								http_status.text = null; //!! just force default phrase for now

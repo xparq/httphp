@@ -1,6 +1,6 @@
 // Product:
 var NAME = "HTTPHP"
-var VERSION = "1.15"
+var VERSION = "1.15+"
 
 var SERVER_CFG = require('./default.cfg')
 
@@ -318,12 +318,12 @@ var server = Http.createServer(function(request, response) {
 		switch (file_ext) {
 
 			case ".php":
-				    phpCGI.env['REQUEST_URI'] = request.url; // PHP-specific
-				    phpCGI.env['DOCUMENT_ROOT'] = SERVER_CFG.DOC_ROOT + Path.sep;
-				    phpCGI.env['SERVER_PORT'] = SERVER_CFG.PORT;
-				    phpCGI.env['SERVER_NAME'] = request.headers.host;
+				phpCGI.env['REQUEST_URI'] = request.url; // PHP-specific
+				phpCGI.env['DOCUMENT_ROOT'] = SERVER_CFG.DOC_ROOT + Path.sep;
+				phpCGI.env['SERVER_PORT'] = SERVER_CFG.PORT;
+				phpCGI.env['SERVER_NAME'] = request.headers.host;
 
-				    phpCGI.process(file_to_serve, request, response, function(statuscode, errmsg) {
+				phpCGI.process(file_to_serve, request, response, function(statuscode, errmsg) {
 					log_http(request, reqpath, file_to_serve_fullpath, statuscode, "(via PHP-CGI)")
 					switch (statuscode) {
 					case 500:
@@ -331,7 +331,7 @@ var server = Http.createServer(function(request, response) {
 						break
 					}
 					response.end()
-				    });
+				});
 
 				break;
 
