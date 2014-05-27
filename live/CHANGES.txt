@@ -45,6 +45,11 @@ root@lenovo:/mnt/local/SZABIREPO/tmp/fotok/Pecsvarad/ilyen volt - 2010-apr [from
 
 DONE:
 =====
+2014-05-27
++ Change cfg. option INDEXES to INDEX. (Basically to make ON_404_TRY_INDEX 
+  more intuitive, at the expense of INDEX becoming less so a bit - but that'd 
+  need less explanation, too.)
+
 2014-04-30
 + Fix httphp.sh to find itself also via symlinked paths.
 
