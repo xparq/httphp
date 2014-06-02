@@ -2,7 +2,9 @@ TODO:
 =====
 [REMEMBER TO UPDATE 'VERSION' IN THE SOURCE, TOO!]
 
-! Pass on HTTP Basic Auth credentials to CGI if received from the client.
+! Per-webroot config!
+
+! "Dump config" control request (as the Apache server-config)
 
 ! FIX [header-resend]
 PHP Strict Standards:  Only variables should be assigned by reference in xxx.php on line xxx
@@ -25,6 +27,8 @@ root@lenovo:/mnt/local/SZABIREPO/tmp/fotok/Pecsvarad/ilyen volt - 2010-apr [from
 
 ! Use the HTTP status phrase set by CGI, instead of ignoring it and using
   the Node.js defaults.
+  
+! Return the error pages as text/html, rather than plain text.
 
 ! Add option to ignore the pre-packaged node.exe for those who have their own.
 ! Fix: "owered-By: PHP/5.5.11-2tent-type: text/htmlript> location="README.txt" </script>"
