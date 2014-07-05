@@ -24,7 +24,7 @@ goto :EOF
 :launch_in_node_dir
 
 :: Find a PHP instance to use...
-:use_php
+:try_php
 :: 10 Check if there is an override (PHPDIR set):
 :: 20	yes: add it to the PATH
 :: 30	(no: continue)
@@ -37,12 +37,18 @@ if not errorlevel 1 goto php_done
 :: 70       	yes: DONE (NO PHP)
 if not "%PHPDIR%" == "" goto php_done_none
 :: 80		no: set default override(s)
-if exist "%~dp0\php-cgi.exe"       set PHPDIR=%~dp0
-if exist "%~dp0php\php-cgi.exe"    set PHPDIR=%~dp0php
+if not exist "%~dp0\php-cgi.exe" goto php_not_here
+	set PHPDIR=%~dp0
+	goto try_php
+:php_not_here
+if not exist "%~dp0php\php-cgi.exe" goto php_not_under
+	set PHPDIR=%~dp0php
+	goto try_php
+:php_not_under
 :: (80)         (fall back to the downloaded dir layout)
-set PHPDIR=%~dp0..\php
-:: 90			start over (from 10)
-goto use_php
+if not exist "%~dp0..\php\php-cgi.exe" goto php_done_none
+	set PHPDIR=%~dp0..\php
+	goto try_php
 
 :php_done_none
 echo HTTPHP.cmd: Warning: Running with no PHP support (no PHP-CGI.EXE on the PATH)!
