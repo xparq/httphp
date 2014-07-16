@@ -1,1 +1,1 @@
-<script> location="README.txt" </script>
+<?php header("location: README.txt"); ?>
