@@ -1,3 +1,7 @@
+NOTE: This is most likely obsolete now for almost any practical use, use the native PHP CLI server instead!
+
+--------------
+
 Please see [live/README.txt](live/README.txt).<br>
 
 BTW, "live" is just the deliverable working ("portable") server dir,
